@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydrop CFO Dashboard 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0a0e17;color:#e1e4e8}
+:root{--accent:#6366f1;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--card:#111827;--border:#1f2937;--text-muted:#6b7280;--text:#e5e7eb}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;width:240px;height:100vh;background:#111827;border-right:1px solid var(--border);padding:0;z-index:100;overflow-y:auto;display:flex;flex-direction:column}
+.nav-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.nav-header h2{font-size:18px;color:#fff;font-weight:700;letter-spacing:-.5px}
+.nav-header .sub{font-size:11px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.nav-group{padding:12px 0}
+.nav-group-title{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;padding:0 20px;margin-bottom:8px}
+.nav a{display:block;padding:9px 20px;color:var(--text-muted);text-decoration:none;font-size:13px;border-left:3px solid transparent;transition:all .15s}
+.nav a:hover{color:var(--text);background:rgba(99,102,241,.05)}
+.nav a.active{color:#fff;background:rgba(99,102,241,.1);border-left-color:var(--accent)}
+.nav-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted)}
+
+/* MAIN */
+.main{margin-left:240px;padding:28px 32px}
+.section{display:none}.section.active{display:block}
+
+/* HEADER */
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:22px;color:#fff;font-weight:700;letter-spacing:-.5px}
+.page-header .subtitle{color:var(--text-muted);font-size:13px;margin-top:4px}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.green::before{background:var(--green)}.kpi.red::before{background:var(--red)}.kpi.blue::before{background:var(--blue)}.kpi.yellow::before{background:var(--yellow)}.kpi.purple::before{background:var(--accent)}
+.kpi .label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.kpi .value{font-size:26px;font-weight:700;color:#fff;margin:8px 0 4px;font-family:'SF Mono','Fira Code',monospace}
+.kpi .delta{font-size:12px;font-weight:500}
+.kpi .delta.up{color:var(--green)}.kpi .delta.down{color:var(--red)}.kpi .delta.neutral{color:var(--yellow)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h3{color:#fff;font-size:15px;margin-bottom:16px;font-weight:600}
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card-row.three{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:1200px){.card-row,.card-row.three{grid-template-columns:1fr}}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:#1a1f2e;color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.8px;border-bottom:1px solid var(--border);position:sticky;top:0}
+td{padding:10px 12px;border-bottom:1px solid #1f2937}
+tr:hover td{background:rgba(99,102,241,.03)}
+.right{text-align:right}
+.mono{font-family:'SF Mono','Fira Code',monospace;font-size:12px}
+.positive{color:var(--green)}.negative{color:var(--red)}.warning{color:var(--yellow)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge.ok{background:rgba(16,185,129,.15);color:var(--green)}
+.badge.alert{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
+.badge.info{background:rgba(99,102,241,.15);color:var(--accent)}
+
+/* PROGRESS BAR */
+.progress-track{background:#1f2937;border-radius:8px;height:8px;margin:8px 0;overflow:hidden}
+.progress-fill{height:100%;border-radius:8px;transition:width .5s}
+
+/* EDITABLE */
+.editable{background:transparent;border:1px solid transparent;color:inherit;font:inherit;padding:2px 4px;border-radius:4px;width:100%;text-align:inherit}
+.editable:hover{border-color:var(--border)}.editable:focus{border-color:var(--accent);outline:none;background:#1a1f2e}
+
+/* ALERT BOX */
+.alert-box{padding:16px 20px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.6}
+.alert-box.critical{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.alert-box.success{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.alert-box.info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);color:#a5b4fc}
+.alert-box strong{color:#fff}
+
+canvas{max-height:320px}
+.footer{text-align:center;padding:40px 0;color:#374151;font-size:11px}
+.tag{font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px}
+
+/* TRM BANNER */
+.trm-bar{display:flex;align-items:center;gap:16px;padding:8px 20px;background:#1a1f2e;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-muted)}
+.trm-bar .val{color:var(--accent);font-weight:600;font-family:monospace}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-header">
+    <h2>HYDROP</h2>
+    <div class="sub">Dashboard CFO 2026</div>
+  </div>
+  <div class="trm-bar">TRM: <span class="val" id="trmDisplay">$4,150</span></div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Gestión</div>
+    <a href="#" onclick="show('cockpit')" class="active" id="nav-cockpit">Cockpit Ejecutivo</a>
+    <a href="#" onclick="show('caja')" id="nav-caja">Posición de Caja</a>
+    <a href="#" onclick="show('pyg')" id="nav-pyg">P&G por Unidad</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Revenue</div>
+    <a href="#" onclick="show('mrr')" id="nav-mrr">MRR & Crecimiento</a>
+    <a href="#" onclick="show('roas')" id="nav-roas">Pauta & ROAS</a>
+    <a href="#" onclick="show('tiendas')" id="nav-tiendas">Tiendas & Dropi</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Control</div>
+    <a href="#" onclick="show('deuda')" id="nav-deuda">Deuda & Créditos</a>
+    <a href="#" onclick="show('nomina')" id="nav-nomina">Nómina & Equipo</a>
+    <a href="#" onclick="show('costos')" id="nav-costos">Costos Fijos</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">Estrategia</div>
+    <a href="#" onclick="show('proyeccion')" id="nav-proyeccion">Proyección $100K</a>
+    <a href="#" onclick="show('alertas')" id="nav-alertas">Alertas & Decisiones</a>
+  </div>
+
+  <div class="nav-footer">
+    Actualizado: <span id="lastUpdate">8 Abril 2026</span><br>
+    Directora Financiera: Gina Salazar
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- ══════════════���════════════════════════════════════════ -->
+<!-- COCKPIT EJECUTIVO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="cockpit" class="section active">
+  <div class="page-header">
+    <h1>Cockpit Ejecutivo</h1>
+    <p class="subtitle">Vista CEO — Lo que necesitas saber en 10 segundos</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="label">MRR Actual (USD)</div>
+      <div class="value">$28,213</div>
+      <div class="delta up">1,082 miembros Skool</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Ingresos Marzo (COP)</div>
+      <div class="value">$97M</div>
+      <div class="delta up">+11.5% vs Feb</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Gastos Marzo (COP)</div>
+      <div class="value">$90.3M</div>
+      <div class="delta neutral">Nómina 52M + Créditos 25M</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Resultado Marzo</div>
+      <div class="value">+$6.7M</div>
+      <div class="delta up">2do mes positivo consecutivo</div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi purple">
+      <div class="label">Progreso Meta $100K USD/mes</div>
+      <div class="value">28.2%</div>
+      <div class="delta neutral">Faltan $71,787 USD/mes</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Carga Deuda Mensual</div>
+      <div class="value">$24.9M</div>
+      <div class="delta up">Baja a $8.6M en Sep</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Costo por Empleado</div>
+      <div class="value">$3.5M</div>
+      <div class="delta neutral">15 personas en nómina</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Ingreso por Empleado</div>
+      <div class="value">$6.5M</div>
+      <div class="delta up">Ratio 1.85x (meta: 3x)</div>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Resultado Mensual 2026 (COP)</h3>
+      <canvas id="chartResultado"></canvas>
+    </div>
+    <div class="card">
+      <h3>Distribución de Gastos — Marzo 2026</h3>
+      <canvas id="chartGastosPie"></canvas>
+    </div>
+  </div>
+
+  <div class="alert-box critical">
+    <strong>Alerta Financiera:</strong> Enero 2026 cerró con -$140M por inversión inicial en pauta Skool ($77.6M). La operación se estabilizó en Feb (+$1.5M) y Mar (+$6.7M). Los meses de Abr-Ago cargan deuda de ~$23M/mes que se libera en Sep. Esos 5 meses son críticos para acumular caja.
+  </div>
+
+  <div class="alert-box success">
+    <strong>Transición exitosa:</strong> De modelo de cursos (TPSD/Certificación) a recurrencia (Skool $29/mes). Skool ya es el 90% del ingreso. La base de ingresos ahora es predecible.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════��════════════════════ -->
+<!-- POSICIÓN DE CAJA -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="caja" class="section">
+  <div class="page-header">
+    <h1>Posición de Caja</h1>
+    <p class="subtitle">Liquidez real — Dónde está el dinero y qué sale esta quincena</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="label">Caja Total Disponible</div>
+      <div class="value" id="cajaTotal">$45.7M</div>
+      <div class="delta neutral">Bancolombia + Payoneer</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Compromisos Próx. 15 días</div>
+      <div class="value">$42.6M</div>
+      <div class="delta down">Nómina + Créditos + Servicios</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Colchón de Seguridad</div>
+      <div class="value">$3.1M</div>
+      <div class="delta down">Meta: $20M mínimo</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Por Cobrar (pendiente ingreso)</div>
+      <div class="value">$12.4M</div>
+      <div class="delta neutral">Payoneer + Dropi + Scalboost</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Saldos por Cuenta</h3>
+    <table>
+      <thead><tr><th>Cuenta</th><th>Moneda</th><th class="right">Saldo</th><th>Disponibilidad</th><th>Notas</th></tr></thead>
+      <tbody>
+        <tr><td>Bancolombia</td><td>COP</td><td class="right mono">35,460,000</td><td><span class="badge ok">Inmediato</span></td><td>Cuenta principal operativa</td></tr>
+        <tr><td>Payoneer</td><td>USD</td><td class="right mono">$3,700</td><td><span class="badge warn">1-2 días</span></td><td>Bajar a Bancolombia</td></tr>
+        <tr><td>Dropi</td><td>COP</td><td class="right mono">2,758,000</td><td><span class="badge warn">Corte martes</span></td><td>Verificar corte 27 marzo</td></tr>
+        <tr><td>Scalboost</td><td>USD</td><td class="right mono">$700</td><td><span class="badge alert">Pendiente habilitación</span></td><td>Revisar martes</td></tr>
+        <tr><td>Skool (por recibir)</td><td>USD</td><td class="right mono">$0</td><td><span class="badge info">Próximo pago</span></td><td>~$28K recurrente</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Compromisos Quincena 1 (1-15 del mes)</h3>
+      <table>
+        <thead><tr><th>Concepto</th><th class="right">Monto (COP)</th><th>Prioridad</th></tr></thead>
+        <tbody>
+          <tr><td>Nómina parcial (mitad equipo)</td><td class="right mono">14,500,000</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Crédito Hydrop</td><td class="right mono">1,150,000</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>TC BBVA 2 (Gina)</td><td class="right mono">761,439</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>TC Davivienda (Gina)</td><td class="right mono">2,357,879</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Administración</td><td class="right mono">600,000</td><td><span class="badge warn">Fijo</span></td></tr>
+          <tr><td><strong>Subtotal Q1</strong></td><td class="right mono"><strong>19,369,318</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Compromisos Quincena 2 (16-30 del mes)</h3>
+      <table>
+        <thead><tr><th>Concepto</th><th class="right">Monto (COP)</th><th>Prioridad</th></tr></thead>
+        <tbody>
+          <tr><td>Nómina restante</td><td class="right mono">37,300,000</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Crédito Andrés</td><td class="right mono">2,583,000</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Crédito Mamá Isa</td><td class="right mono">5,272,563</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>TC BBVA 1</td><td class="right mono">5,407,259</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Cuota Camioneta</td><td class="right mono">4,200,000</td><td><span class="badge alert">Obligatorio</span></td></tr>
+          <tr><td>Contabilidad</td><td class="right mono">1,254,855</td><td><span class="badge warn">Fijo</span></td></tr>
+          <tr><td><strong>Subtotal Q2</strong></td><td class="right mono"><strong>56,017,677</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Flujo de Caja Semanal — Proyección 4 Semanas</h3>
+    <canvas id="chartFlujoSemanal"></canvas>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- P&G POR UNIDAD DE NEGOCIO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="pyg" class="section">
+  <div class="page-header">
+    <h1>P&G por Unidad de Negocio</h1>
+    <p class="subtitle">Cada negocio debe justificar su existencia — Margen real por operación</p>
+  </div>
+
+  <div class="card">
+    <h3>Estado de Resultados Consolidado 2026 (COP Millones)</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th style="min-width:200px">Concepto</th><th class="right">Ene</th><th class="right">Feb</th><th class="right">Mar</th><th class="right">Abr</th><th class="right">YTD</th><th class="right">% del Total</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:#0d1424"><td><strong>INGRESOS</strong></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Skool (Hydrop Club)</td><td class="right mono">0</td><td class="right mono">87.0</td><td class="right mono">87.0</td><td class="right mono">87.0</td><td class="right mono positive">261.0</td><td class="right">86.9%</td></tr>
+        <tr><td>Dropi Comisiones</td><td class="right mono">10.5</td><td class="right mono">0</td><td class="right mono">10.0</td><td class="right mono">10.0</td><td class="right mono">30.5</td><td class="right">10.2%</td></tr>
+        <tr><td>Tiendas (Col+Gua+Ecu)</td><td class="right mono">8.8</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">8.8</td><td class="right">2.9%</td></tr>
+        <tr><td>Mentoría</td><td class="right mono">0</td><td class="right mono">4.1</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">4.1</td><td class="right">—</td></tr>
+        <tr><td>Otros (Scalboost, Realeasit)</td><td class="right mono">0.2</td><td class="right mono">1.6</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">1.8</td><td class="right">—</td></tr>
+        <tr style="background:#0d1424;font-weight:700"><td>INGRESOS TOTALES</td><td class="right mono">19.5</td><td class="right mono">87.0</td><td class="right mono">97.0</td><td class="right mono">97.0</td><td class="right mono">300.5</td><td class="right">100%</td></tr>
+
+        <tr><td colspan="7" style="height:8px;border:0"></td></tr>
+        <tr style="background:#0d1424"><td><strong>GASTOS OPERATIVOS</strong></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Nómina + Seguridad Social</td><td class="right mono">50.8</td><td class="right mono">51.3</td><td class="right mono">52.0</td><td class="right mono">49.3</td><td class="right mono negative">203.4</td><td class="right">62.0%</td></tr>
+        <tr><td>Pauta Publicitaria</td><td class="right mono">81.5</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">81.5</td><td class="right">24.8%</td></tr>
+        <tr><td>Servicios Profesionales</td><td class="right mono">7.2</td><td class="right mono">7.2</td><td class="right mono">4.1</td><td class="right mono">5.5</td><td class="right mono">24.0</td><td class="right">7.3%</td></tr>
+        <tr><td>Plataformas & Software</td><td class="right mono">3.9</td><td class="right mono">5.0</td><td class="right mono">5.0</td><td class="right mono">0</td><td class="right mono">13.9</td><td class="right">4.2%</td></tr>
+        <tr><td>Cuota Vehículo</td><td class="right mono">4.2</td><td class="right mono">4.2</td><td class="right mono">4.2</td><td class="right mono">4.2</td><td class="right mono">16.8</td><td class="right">5.1%</td></tr>
+        <tr><td>Impuestos</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0.1</td><td class="right mono">3.4</td><td class="right mono">3.5</td><td class="right">1.1%</td></tr>
+        <tr style="background:#0d1424;font-weight:700"><td>GASTOS OPERATIVOS</td><td class="right mono">147.5</td><td class="right mono">67.6</td><td class="right mono">65.4</td><td class="right mono">62.4</td><td class="right mono">342.9</td><td class="right"></td></tr>
+
+        <tr><td colspan="7" style="height:4px;border:0"></td></tr>
+        <tr style="background:rgba(16,185,129,.05)"><td><strong>EBITDA (antes de deuda)</strong></td><td class="right mono negative">-128.1</td><td class="right mono positive">+19.4</td><td class="right mono positive">+31.6</td><td class="right mono positive">+34.6</td><td class="right mono negative">-42.5</td><td></td></tr>
+
+        <tr><td colspan="7" style="height:8px;border:0"></td></tr>
+        <tr style="background:#0d1424"><td><strong>SERVICIO DE DEUDA</strong></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Créditos Bancarios</td><td class="right mono">3.7</td><td class="right mono">3.7</td><td class="right mono">3.7</td><td class="right mono">3.7</td><td class="right mono">14.9</td><td></td></tr>
+        <tr><td>Tarjetas de Crédito</td><td class="right mono">8.5</td><td class="right mono">8.9</td><td class="right mono">9.1</td><td class="right mono">7.7</td><td class="right mono">34.2</td><td></td></tr>
+        <tr><td>Créditos Familiares (Mamá Isa+Joaquín+Alejo)</td><td class="right mono">0</td><td class="right mono">5.3</td><td class="right mono">12.1</td><td class="right mono">12.0</td><td class="right mono">29.4</td><td></td></tr>
+        <tr style="background:#0d1424;font-weight:700"><td>TOTAL DEUDA</td><td class="right mono">12.3</td><td class="right mono">17.9</td><td class="right mono">24.9</td><td class="right mono">23.4</td><td class="right mono">78.5</td><td></td></tr>
+
+        <tr><td colspan="7" style="height:4px;border:0"></td></tr>
+        <tr style="background:rgba(99,102,241,.08);font-weight:700;font-size:14px"><td>RESULTADO NETO</td><td class="right mono negative">-140.3</td><td class="right mono positive">+1.5</td><td class="right mono positive">+6.7</td><td class="right mono positive">+11.2</td><td class="right mono negative">-120.9</td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Margen por Unidad de Negocio</h3>
+      <canvas id="chartMargenUnidad"></canvas>
+    </div>
+    <div class="card">
+      <h3>Composición de Ingresos</h3>
+      <canvas id="chartIngresosComp"></canvas>
+    </div>
+  </div>
+
+  <div class="alert-box info">
+    <strong>Lectura CEO:</strong> Si eliminas el golpe de enero (inversión de lanzamiento), la operación genera +$6.5M/mes en promedio (Feb-Abr). La deuda come $20-25M/mes hasta agosto. A partir de septiembre, con deuda reducida a $8.6M/mes, el margen operativo debería ser de +$25M/mes o más — si mantienes Skool en $87M+ y controlas nómina.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MRR & CRECIMIENTO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="mrr" class="section">
+  <div class="page-header">
+    <h1>MRR & Crecimiento</h1>
+    <p class="subtitle">Hydrop Club (Skool) — Motor principal de revenue</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="label">MRR</div>
+      <div class="value">$28,213</div>
+      <div class="delta up">Net new: +$5,900/mes</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Miembros Activos</div>
+      <div class="value">1,082</div>
+      <div class="delta up">354 nuevos/mes</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Churn Mensual</div>
+      <div class="value">20%</div>
+      <div class="delta down">-$5,600 MRR perdido/mes</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">LTV Promedio</div>
+      <div class="value">$58</div>
+      <div class="delta down">Solo 2 meses promedio</div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi purple">
+      <div class="label">Nuevo MRR / Mes</div>
+      <div class="value">$11,509</div>
+      <div class="delta neutral">354 signups × $29 + existentes</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">CAC (Costo Adquisición)</div>
+      <div class="value">$219</div>
+      <div class="delta down">77.6M pauta ÷ 354 signups</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Conversión VSL</div>
+      <div class="value">5.8%</div>
+      <div class="delta up">251 de 4,309 visitantes</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">LTV:CAC Ratio</div>
+      <div class="value">0.26x</div>
+      <div class="delta down">Meta: 3x mínimo</div>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Evolución MRR (USD)</h3>
+      <canvas id="chartMRR"></canvas>
+    </div>
+    <div class="card">
+      <h3>Retención por Cohorte</h3>
+      <table>
+        <thead><tr><th>Cohorte</th><th class="right">MRR Inicial</th><th class="right">Mes 1</th><th class="right">Mes 2</th><th class="right">Mes 3</th></tr></thead>
+        <tbody>
+          <tr><td>Dic 2025</td><td class="right mono">$3,200</td><td class="right positive">92%</td><td class="right warning">52.2%</td><td class="right">—</td></tr>
+          <tr><td>Ene 2026</td><td class="right mono">$20,600</td><td class="right warning">75.4%</td><td class="right">—</td><td class="right">—</td></tr>
+          <tr style="font-weight:700"><td>Promedio Ponderado</td><td class="right">—</td><td class="right warning">77.6%</td><td class="right negative">51.4%</td><td class="right negative">16.7%</td></tr>
+        </tbody>
+      </table>
+      <div class="alert-box critical" style="margin-top:16px">
+        <strong>Problema #1:</strong> Solo 51% de miembros llegan al mes 2. Cada 1% de mejora en retención = ~$560 USD/mes conservados. Si retención mes 1 sube de 77% a 90%, son +$3,640 USD/mes.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Fuentes de Signup — Últimos 30 días</h3>
+    <table>
+      <thead><tr><th>Fuente</th><th class="right">Visitantes</th><th class="right">Signups</th><th class="right">Conversión</th><th class="right">MRR Generado</th><th class="right">% del MRR Nuevo</th></tr></thead>
+      <tbody>
+        <tr><td>hydrop.com.co (VSL)</td><td class="right mono">4,309</td><td class="right mono">251</td><td class="right positive">5.8%</td><td class="right mono">$9,005</td><td class="right">78.2%</td></tr>
+        <tr><td>Instagram</td><td class="right mono">1,785</td><td class="right mono">28</td><td class="right negative">1.6%</td><td class="right mono">$1,004</td><td class="right">8.7%</td></tr>
+        <tr><td>Email invite</td><td class="right mono">—</td><td class="right mono">32</td><td class="right">—</td><td class="right mono">—</td><td class="right">—</td></tr>
+        <tr><td>Direct</td><td class="right mono">1,801</td><td class="right mono">22</td><td class="right negative">1.2%</td><td class="right mono">$763</td><td class="right">6.6%</td></tr>
+        <tr><td>Skool network</td><td class="right mono">235</td><td class="right mono">10</td><td class="right positive">4.3%</td><td class="right mono">$346</td><td class="right">3.0%</td></tr>
+        <tr><td>Afiliados</td><td class="right mono">—</td><td class="right mono">6</td><td class="right">—</td><td class="right mono">$222</td><td class="right">1.9%</td></tr>
+        <tr style="font-weight:700"><td>TOTAL</td><td class="right mono">7,817</td><td class="right mono">354</td><td class="right">4.5%</td><td class="right mono">$11,509</td><td class="right">100%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════��════════════════════ -->
+<!-- PAUTA & ROAS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="roas" class="section">
+  <div class="page-header">
+    <h1>Pauta & ROAS</h1>
+    <p class="subtitle">Cada peso en pauta debe justificarse — Inversión vs Retorno por canal</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi blue">
+      <div class="label">Inversión Pauta Ene 2026</div>
+      <div class="value">$81.5M</div>
+      <div class="delta neutral">77.6M Skool + 3.8M Tiendas</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">ROAS Global Skool</div>
+      <div class="value">0.25x</div>
+      <div class="delta down">Mes 1 de inversión (normal)</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">ROAS Tienda Col (2025)</div>
+      <div class="value">1.89x</div>
+      <div class="delta up">Mejor ROAS histórico</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">CPA Skool</div>
+      <div class="value">$219 USD</div>
+      <div class="delta down">Meta: < $58 (= LTV)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ROAS Histórico por Producto (2025)</h3>
+    <table>
+      <thead><tr><th>Producto</th><th>Período</th><th class="right">Inversión</th><th class="right">Ingreso</th><th class="right">ROAS</th><th>Evaluación</th></tr></thead>
+      <tbody>
+        <tr><td>Tienda Colombia</td><td>Jul-Nov 2025</td><td class="right mono">16.5M</td><td class="right mono">28.1M</td><td class="right positive">1.70x</td><td><span class="badge ok">Rentable</span></td></tr>
+        <tr><td>TPSD 50 USD</td><td>Jul-Sep 2025</td><td class="right mono">93.9M</td><td class="right mono">137.2M</td><td class="right positive">1.46x</td><td><span class="badge ok">Rentable</span></td></tr>
+        <tr><td>Certificación 500 USD</td><td>Ago-Sep 2025</td><td class="right mono">21.0M</td><td class="right mono">19.7M</td><td class="right negative">0.94x</td><td><span class="badge alert">Pérdida</span></td></tr>
+        <tr><td>Lanzamientos</td><td>Jul-Nov 2025</td><td class="right mono">0</td><td class="right mono">101.8M</td><td class="right positive">∞</td><td><span class="badge ok">Orgánico</span></td></tr>
+        <tr><td>Skool (Ene 2026)</td><td>Ene 2026</td><td class="right mono">77.6M</td><td class="right mono">0*</td><td class="right negative">—</td><td><span class="badge warn">Inversión inicial</span></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;font-size:11px;color:var(--text-muted)">* Skool genera MRR recurrente — el retorno se mide en LTV acumulado, no en el mes de inversión</p>
+  </div>
+
+  <div class="card">
+    <h3>Inversión Publicitaria Mensual 2026 (COP)</h3>
+    <canvas id="chartPauta"></canvas>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TIENDAS & DROPI -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tiendas" class="section">
+  <div class="page-header">
+    <h1>Tiendas & Dropi</h1>
+    <p class="subtitle">Operaciones de Dropshipping — Cada tienda como centro de costo independiente</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="label">Comisiones Dropi (Ene)</div>
+      <div class="value">$10.5M</div>
+      <div class="delta neutral">Ingreso pasivo por red de referidos</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Tiendas Activas</div>
+      <div class="value">3</div>
+      <div class="delta neutral">Colombia + Guatemala + Paraguay (próx)</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Margen Tienda Col</div>
+      <div class="value">47%</div>
+      <div class="delta up">Ingreso 2.5M / Inversión 1.6M</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Tienda Ecuador</div>
+      <div class="value">$0</div>
+      <div class="delta down">Sin actividad en 2026</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P&L por Tienda — Enero 2026 (COP)</h3>
+    <table>
+      <thead><tr><th>Tienda</th><th class="right">Ventas</th><th class="right">Inversión Pauta</th><th class="right">Margen</th><th class="right">ROAS</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>Colombia</td><td class="right mono">2,495,330</td><td class="right mono">1,573,262</td><td class="right mono positive">922,068</td><td class="right positive">1.59x</td><td><span class="badge ok">Activa</span></td></tr>
+        <tr><td>Guatemala</td><td class="right mono">6,293,851</td><td class="right mono">2,265,635</td><td class="right mono positive">4,028,216</td><td class="right positive">2.78x</td><td><span class="badge ok">Activa</span></td></tr>
+        <tr><td>Ecuador</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0</td><td class="right">—</td><td><span class="badge alert">Inactiva</span></td></tr>
+        <tr><td>Paraguay</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0</td><td class="right">—</td><td><span class="badge info">Próximo lanzamiento</span></td></tr>
+        <tr><td>Dilan</td><td class="right mono">0</td><td class="right mono">0</td><td class="right mono">0</td><td class="right">—</td><td><span class="badge alert">Inactiva</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert-box info">
+    <strong>Decisión pendiente:</strong> Guatemala tiene ROAS de 2.78x — la mejor tienda. Paraguay se lanza en abril con $10K de presupuesto. Ecuador lleva inactiva desde oct 2025. Evaluar: cerrar Ecuador formalmente o reactivar con mínimo viable?
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DEUDA & CRÉDITOS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="deuda" class="section">
+  <div class="page-header">
+    <h1>Deuda & Créditos</h1>
+    <p class="subtitle">Mapa completo de obligaciones — Cuándo se libera cada peso</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi red">
+      <div class="label">Cuota Mensual Total (Abr)</div>
+      <div class="value">$23.4M</div>
+      <div class="delta neutral">27% de los gastos totales</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Deuda que se libera en Sep</div>
+      <div class="value">$16.3M/mes</div>
+      <div class="delta up">TC + Créditos familiares terminan</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Cuota desde Sep 2026</div>
+      <div class="value">$8.6M</div>
+      <div class="delta up">Solo Hydrop + Andrés + Mamá Isa + Carro</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">Meses hasta alivio</div>
+      <div class="value">5</div>
+      <div class="delta neutral">Abr → Ago (resistir)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Tabla de Amortización — Todas las Obligaciones</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th style="min-width:180px">Crédito</th><th class="right">Cuota Actual</th><th>Frecuencia</th><th>Termina</th><th class="right">Saldo Est.</th><th>Titular</th></tr></thead>
+      <tbody>
+        <tr><td>Crédito Hydrop</td><td class="right mono">1,150,000</td><td>Quincenal (1ro)</td><td>Todo 2026+</td><td class="right mono">—</td><td>Empresa</td></tr>
+        <tr><td>Crédito Andrés</td><td class="right mono">2,583,000</td><td>Quincenal (30)</td><td>Todo 2026+</td><td class="right mono">—</td><td>Andrés</td></tr>
+        <tr><td>Cuota Camioneta</td><td class="right mono">4,200,000</td><td>Mensual</td><td>Todo 2026+</td><td class="right mono">—</td><td>Empresa</td></tr>
+        <tr style="background:rgba(245,158,11,.05)"><td>Crédito Mamá Isa</td><td class="right mono">~5,200,000</td><td>Quincenal</td><td>Dic 2026</td><td class="right mono">~50M</td><td>Familiar</td></tr>
+        <tr style="background:rgba(239,68,68,.05)"><td>TC BBVA Grande (30M)</td><td class="right mono">~5,800,000</td><td>Mensual</td><td><span class="badge warn">Ago 2026</span></td><td class="right mono">~20M</td><td>Gina</td></tr>
+        <tr style="background:rgba(239,68,68,.05)"><td>TC Davivienda (8.5M)</td><td class="right mono">~1,700,000</td><td>Mensual</td><td><span class="badge warn">Ago 2026</span></td><td class="right mono">~7M</td><td>Gina</td></tr>
+        <tr style="background:rgba(239,68,68,.05)"><td>TC Joaquín</td><td class="right mono">~3,800,000</td><td>Mensual</td><td><span class="badge warn">Ago 2026</span></td><td class="right mono">~19M</td><td>Joaquín</td></tr>
+        <tr style="background:rgba(239,68,68,.05)"><td>TC Alejandro 1</td><td class="right mono">~2,000,000</td><td>Mensual</td><td><span class="badge warn">Ago 2026</span></td><td class="right mono">~10M</td><td>Alejandro</td></tr>
+        <tr style="background:rgba(239,68,68,.05)"><td>TC Alejandro 2</td><td class="right mono">~1,050,000</td><td>Mensual</td><td><span class="badge warn">Ago 2026</span></td><td class="right mono">~5M</td><td>Alejandro</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL ABR-AGO</td><td class="right mono negative">~23,400,000</td><td></td><td></td><td></td><td></td></tr>
+        <tr style="font-weight:700;color:var(--green)"><td>TOTAL SEP-DIC (post-alivio)</td><td class="right mono">~8,600,000</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Carga de Deuda Mensual 2026 (COP Millones)</h3>
+    <canvas id="chartDeuda"></canvas>
+  </div>
+
+  <div class="alert-box success">
+    <strong>Luz al final del túnel:</strong> En septiembre se liberan ~$16.3M/mes en cuotas de tarjetas y créditos familiares. Eso equivale a contratar 3 personas o invertir $4,000 USD más en pauta cada mes. Los próximos 5 meses son de supervivencia — después viene el alivio.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- NÓMINA & EQUIPO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="nomina" class="section">
+  <div class="page-header">
+    <h1>Nómina & Equipo</h1>
+    <p class="subtitle">El gasto #1 de la empresa — Cada persona debe generar más de lo que cuesta</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi red">
+      <div class="label">Nómina Mensual Total</div>
+      <div class="value">$49.3M</div>
+      <div class="delta down">54% de los gastos operativos</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Personas en Nómina</div>
+      <div class="value">15</div>
+      <div class="delta neutral">Sube a $54.3M desde mayo (aumento Esteban)</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Revenue/Empleado</div>
+      <div class="value">$6.5M</div>
+      <div class="delta neutral">$97M ÷ 15 personas</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Meta Revenue/Empleado</div>
+      <div class="value">$15M+</div>
+      <div class="delta up">Necesario para $100K USD/mes</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Detalle de Nómina Mensual 2026</h3>
+    <table>
+      <thead><tr><th>Persona</th><th>Rol</th><th class="right">Salario (COP)</th><th class="right">% de Nómina</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Esteban</strong></td><td>Founder / CEO</td><td class="right mono">10,000,000</td><td class="right">20.3%</td><td>Sube a 15M en mayo</td></tr>
+        <tr><td><strong>Gina</strong></td><td>Dir. Financiera</td><td class="right mono">5,500,000</td><td class="right">11.2%</td><td></td></tr>
+        <tr><td><strong>Andrés</strong></td><td>Manager</td><td class="right mono">5,500,000</td><td class="right">11.2%</td><td></td></tr>
+        <tr><td><strong>Alejandro</strong></td><td>Traffiker / Growth</td><td class="right mono">5,500,000</td><td class="right">11.2%</td><td></td></tr>
+        <tr><td>Joaquín</td><td>—</td><td class="right mono">4,000,000</td><td class="right">8.1%</td><td></td></tr>
+        <tr><td>Santi</td><td>Mentor</td><td class="right mono">4,000,000</td><td class="right">8.1%</td><td></td></tr>
+        <tr><td>Ander</td><td>—</td><td class="right mono">3,600,000</td><td class="right">7.3%</td><td></td></tr>
+        <tr><td>Camilo</td><td>—</td><td class="right mono">2,500,000</td><td class="right">5.1%</td><td></td></tr>
+        <tr><td>Bermúdez</td><td>—</td><td class="right mono">2,000,000</td><td class="right">4.1%</td><td></td></tr>
+        <tr><td>Estiven</td><td>Tiendas</td><td class="right mono">2,000,000</td><td class="right">4.1%</td><td>Desde marzo</td></tr>
+        <tr><td>Valeria</td><td>—</td><td class="right mono">1,650,000</td><td class="right">3.3%</td><td></td></tr>
+        <tr><td>Juliana</td><td>—</td><td class="right mono">1,650,000</td><td class="right">3.3%</td><td></td></tr>
+        <tr><td>Isai</td><td>—</td><td class="right mono">1,400,000</td><td class="right">2.8%</td><td></td></tr>
+        <tr style="color:var(--text-muted)"><td><s>Samu</s></td><td>—</td><td class="right mono"><s>2,000,000</s></td><td class="right">—</td><td>Salió en marzo</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL</td><td></td><td class="right mono">49,300,000</td><td class="right">100%</td><td>54.3M desde mayo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Nómina vs Ingresos (COP Millones)</h3>
+    <canvas id="chartNomina"></canvas>
+  </div>
+
+  <div class="alert-box critical">
+    <strong>Decisión estratégica:</strong> Con 15 personas y $97M de ingreso, el ratio es 1.85x (cada peso de nómina genera 1.85 pesos de ingreso). En empresas de marketing digital saludables el ratio es 3-5x. Opciones: (A) Crecer ingresos a $150M+ sin aumentar equipo, (B) Reducir nómina a $35M optimizando roles, o (C) Ambas. El aumento de Esteban a $15M en mayo agrava esto temporalmente.
+  </div>
+</div>
+
+<!-- ═════════════════════════════════��═════════════════════ -->
+<!-- COSTOS FIJOS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="costos" class="section">
+  <div class="page-header">
+    <h1>Costos Fijos</h1>
+    <p class="subtitle">Plataformas, servicios y gastos que salen llueva o truene</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi blue">
+      <div class="label">Plataformas / mes</div>
+      <div class="value">~$5M</div>
+      <div class="delta neutral">~$1,200 USD en suscripciones</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Servicios Profesionales</div>
+      <div class="value">$5.5M</div>
+      <div class="delta neutral">Adm + Contabilidad + Mentoría</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Casa (aporte empresa)</div>
+      <div class="value">$7.6M</div>
+      <div class="delta down">Arriendo 3M + Mercado 1.7M + Otros</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Costos Fijos Totales</div>
+      <div class="value">~$18.1M</div>
+      <div class="delta neutral">Sin nómina ni deuda</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Suscripciones y Plataformas — Marzo 2026</h3>
+    <table>
+      <thead><tr><th>Plataforma</th><th class="right">Costo/mes (COP)</th><th>Uso</th><th>Justificación</th></tr></thead>
+      <tbody>
+        <tr><td>Skool 1 (Recurrencia)</td><td class="right mono">375,000</td><td><span class="badge ok">Activo</span></td><td>Plataforma principal Hydrop Club</td></tr>
+        <tr><td>Skool 2 (Hyticket)</td><td class="right mono">375,000</td><td><span class="badge warn">Evaluar</span></td><td>Segundo grupo — ¿se usa?</td></tr>
+        <tr><td>VTurb</td><td class="right mono">479,830</td><td><span class="badge ok">Activo</span></td><td>VSL hosting — core del funnel</td></tr>
+        <tr><td>GoHighLevel</td><td class="right mono">412,500</td><td><span class="badge alert">Subutilizado</span></td><td>76K contactos sin automatización</td></tr>
+        <tr><td>Google G Suite</td><td class="right mono">525,000</td><td><span class="badge ok">Activo</span></td><td>Email corporativo</td></tr>
+        <tr><td>ManyChat</td><td class="right mono">239,900</td><td><span class="badge alert">Inactivo</span></td><td>Pagando sin usar</td></tr>
+        <tr><td>Royalitis</td><td class="right mono">1,460,800</td><td><span class="badge warn">Evaluar</span></td><td>¿Retorno justifica costo?</td></tr>
+        <tr><td>Motionarray</td><td class="right mono">154,098</td><td><span class="badge ok">Activo</span></td><td>Assets de video</td></tr>
+        <tr><td>Adobe</td><td class="right mono">52,500</td><td><span class="badge ok">Activo</span></td><td>Diseño</td></tr>
+        <tr><td>CapCut</td><td class="right mono">78,750</td><td><span class="badge ok">Activo</span></td><td>Edición de video</td></tr>
+        <tr><td>Higgsfield</td><td class="right mono">112,500</td><td><span class="badge warn">Evaluar</span></td><td>IA video</td></tr>
+        <tr><td>Hosting Clipto</td><td class="right mono">97,500</td><td><span class="badge ok">Activo</span></td><td>Hosting semidedicado</td></tr>
+        <tr><td>ChatGPT</td><td class="right mono">92,275</td><td><span class="badge ok">Activo</span></td><td>IA equipo</td></tr>
+        <tr><td>Otros (Zoom, Bana, Discord, etc.)</td><td class="right mono">~485,000</td><td><span class="badge ok">Activo</span></td><td>Herramientas varias</td></tr>
+        <tr style="font-weight:700;border-top:2px solid var(--border)"><td>TOTAL PLATAFORMAS</td><td class="right mono">~4,940,653</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert-box critical">
+    <strong>Ahorro inmediato:</strong> ManyChat ($240K) está inactivo. GoHighLevel ($412K) está subutilizado con 76K contactos muertos. Si no se activan en 30 días, cancelar y ahorrar $652K/mes (~$7.8M/año). Royalitis ($1.46M) y Skool 2 ($375K) necesitan revisión de ROI.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROYECCIÓN $100K -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="proyeccion" class="section">
+  <div class="page-header">
+    <h1>Proyección $100K USD/mes</h1>
+    <p class="subtitle">El camino matemático — Qué tiene que pasar para llegar</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi purple">
+      <div class="label">Meta</div>
+      <div class="value">$100,000</div>
+      <div class="delta neutral">USD/mes en facturación</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Actual</div>
+      <div class="value">$28,213</div>
+      <div class="delta up">28.2% del objetivo</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Gap</div>
+      <div class="value">$71,787</div>
+      <div class="delta neutral">USD/mes adicionales necesarios</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">En COP (TRM 4,150)</div>
+      <div class="value">$415M</div>
+      <div class="delta neutral">Meta mensual total en pesos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Progreso hacia $100K USD/mes</h3>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <div style="flex:1">
+        <div class="progress-track">
+          <div class="progress-fill" style="width:28.2%;background:linear-gradient(90deg,var(--accent),var(--green))"></div>
+        </div>
+      </div>
+      <div class="mono" style="color:#fff;font-size:18px;font-weight:700">28.2%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Escenarios de Crecimiento</h3>
+    <table>
+      <thead><tr><th>Escenario</th><th class="right">Net MRR Growth/mes</th><th class="right">MRR Sep 2026</th><th class="right">MRR Dic 2026</th><th>Llegas a $100K?</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge alert">Actual (sin cambios)</span></td><td class="right mono">+$5,900</td><td class="right mono">$57,713</td><td class="right mono">$75,413</td><td><span class="badge alert">No — Llegas en Feb 2027</span></td></tr>
+        <tr><td><span class="badge warn">Mejora retención (10%→15% churn)</span></td><td class="right mono">+$8,400</td><td class="right mono">$70,213</td><td class="right mono">$95,813</td><td><span class="badge warn">Casi — Ene 2027</span></td></tr>
+        <tr><td><span class="badge ok">Retención + Upsell ($197 PRO)</span></td><td class="right mono">+$14,000</td><td class="right mono">$98,213</td><td class="right mono">$140,213</td><td><span class="badge ok">Sí — Sep 2026</span></td></tr>
+        <tr><td><span class="badge info">Full plan (retención + upsell + reactivación)</span></td><td class="right mono">+$20,000</td><td class="right mono">$128,213</td><td class="right mono">$188,213</td><td><span class="badge ok">Sí — Jul 2026</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Proyección MRR por Escenario (USD)</h3>
+    <canvas id="chartProyeccion"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Las 3 Palancas Financieras</h3>
+    <table>
+      <thead><tr><th>Palanca</th><th>Estado Actual</th><th>Meta</th><th class="right">Impacto USD/mes</th><th>Dificultad</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1. Retener más</strong></td><td class="negative">20% churn mensual</td><td>10% churn</td><td class="right mono positive">+$2,800</td><td><span class="badge warn">Media</span></td></tr>
+        <tr><td><strong>2. Cobrar más</strong></td><td class="negative">Solo $29/mes (techo)</td><td>PRO $197 + ELITE $500</td><td class="right mono positive">+$10,000</td><td><span class="badge warn">Media</span></td></tr>
+        <tr><td><strong>3. Capturar más</strong></td><td class="negative">7,468 visitantes perdidos/mes</td><td>Lead magnet + nurturing</td><td class="right mono positive">+$5,800</td><td><span class="badge ok">Baja</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ALERTAS & DECISIONES -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="alertas" class="section">
+  <div class="page-header">
+    <h1>Alertas & Decisiones Pendientes</h1>
+    <p class="subtitle">Lo que requiere acción de la dirección — No espera</p>
+  </div>
+
+  <div class="alert-box critical">
+    <strong>URGENTE — LTV:CAC negativo:</strong> El CAC actual es $219 USD y el LTV es $58 USD. Estamos pagando 3.8x más por adquirir un cliente de lo que ese cliente nos genera. Esto solo es sostenible si mejoramos retención dramáticamente o lanzamos upsells. Sin eso, cada peso en pauta es pérdida.
+  </div>
+
+  <div class="alert-box critical">
+    <strong>URGENTE — Nómina vs Ingreso:</strong> La nómina ($49-54M) representa el 51-56% de los ingresos ($97M). En una empresa de marketing digital saludable debería ser máximo 30-35%. Hay 15 personas en nómina para un negocio que genera ~$23K USD. Cada persona debe justificar su contribución al revenue.
+  </div>
+
+  <div class="alert-box info">
+    <strong>DECISIÓN — Aumento Esteban (Mayo):</strong> Esteban sube de $10M a $15M en mayo. Esto agrega $5M/mes al gasto fijo justo en los meses de mayor carga de deuda. Evaluar si se puede diferir al periodo post-alivio (septiembre).
+  </div>
+
+  <div class="alert-box info">
+    <strong>DECISIÓN — Paraguay:</strong> Lanzamiento abril con $10K de presupuesto. Guatemala dio ROAS 2.78x. Si Paraguay replica ese resultado, son ~$28M adicionales/mes. Pero el timing coincide con los meses de mayor presión de caja. Asegurar que el capital viene de fuente separada o de caja de operación del mes.
+  </div>
+
+  <div class="alert-box info">
+    <strong>DECISIÓN — Plataformas sin uso:</strong> ManyChat ($240K) + GoHighLevel subutilizado ($412K) = $652K/mes desperdiciados. O se activan con plan concreto en abril, o se cancelan. No pagar por potencial — pagar por resultados.
+  </div>
+
+  <div class="alert-box success">
+    <strong>POSITIVO — Deuda se reduce en Sep:</strong> De $23.4M/mes a $8.6M/mes. Esa diferencia de $14.8M/mes (= ~$3,500 USD) se libera para reinversión. Planificar AHORA qué se hará con ese flujo libre: ¿más pauta? ¿colchón? ¿nuevos productos?
+  </div>
+
+  <div class="alert-box success">
+    <strong>POSITIVO — Modelo recurrente funciona:</strong> La transición de cursos (ingreso impredecible) a Skool (recurrencia mensual) fue exitosa. Feb y Mar cerraron positivos. El negocio tiene base para escalar si se controlan los costos y se mejora retención.
+  </div>
+
+  <div class="card">
+    <h3>Matriz de Prioridad Financiera — Abril 2026</h3>
+    <table>
+      <thead><tr><th>Acción</th><th class="right">Impacto Mensual</th><th>Esfuerzo</th><th>Prioridad</th></tr></thead>
+      <tbody>
+        <tr><td>Mejorar retención mes 1 (77%→90%)</td><td class="right mono positive">+$3,640 USD</td><td>Medio (onboarding)</td><td><span class="badge alert">P1</span></td></tr>
+        <tr><td>Lanzar Hydrop PRO ($197)</td><td class="right mono positive">+$5,000 USD</td><td>Medio (producto)</td><td><span class="badge alert">P1</span></td></tr>
+        <tr><td>Reactivar 76K contactos GHL</td><td class="right mono positive">+$4,400 USD</td><td>Bajo (automatización)</td><td><span class="badge alert">P1</span></td></tr>
+        <tr><td>Cancelar plataformas sin uso</td><td class="right mono positive">+$652K COP</td><td>Bajo</td><td><span class="badge warn">P2</span></td></tr>
+        <tr><td>Activar ManyChat en Instagram</td><td class="right mono positive">+$2,100 USD</td><td>Bajo</td><td><span class="badge warn">P2</span></td></tr>
+        <tr><td>Lanzar Paraguay</td><td class="right mono positive">+$3,000-5,000 USD</td><td>Alto ($10K inversión)</td><td><span class="badge info">P3</span></td></tr>
+        <tr><td>Revisar nómina (15 → optimizar)</td><td class="right mono positive">+$5-15M COP</td><td>Alto (político)</td><td><span class="badge info">P3</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══ NAVIGATION ═══
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navEl=document.getElementById('nav-'+id);
+  if(navEl)navEl.classList.add('active');
+}
+
+// ═══ CHART DEFAULTS ═══
+Chart.defaults.color='#6b7280';
+Chart.defaults.borderColor='#1f2937';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=11;
+
+const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// ═══ COCKPIT — Resultado Mensual ═══
+new Chart(document.getElementById('chartResultado'),{
+  type:'bar',
+  data:{
+    labels:meses,
+    datasets:[
+      {label:'Ingresos',data:[19.5,87,97,97,97,97,97,97,97,97,97,97],backgroundColor:'rgba(99,102,241,.6)',borderRadius:4},
+      {label:'Gastos',data:[159.8,85.5,90.3,85.8,85.6,82.9,84.7,82.1,68.9,68.9,68.9,68.7],backgroundColor:'rgba(239,68,68,.4)',borderRadius:4},
+      {label:'Resultado',data:[-140.3,1.5,6.7,11.2,-85.6,-82.9,-84.7,-82.1,28.1,28.1,28.1,28.3],type:'line',borderColor:'#10b981',backgroundColor:'transparent',pointBackgroundColor:'#10b981',tension:.3,borderWidth:2}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toFixed(1)+'M'}}},
+    scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}}}
+  }
+});
+
+// ═══ COCKPIT — Gastos Pie ═══
+new Chart(document.getElementById('chartGastosPie'),{
+  type:'doughnut',
+  data:{
+    labels:['Nómina','Créditos/Deuda','Plataformas','Serv. Profesionales','Vehículo','Impuestos'],
+    datasets:[{
+      data:[52,24.9,5,4.1,4.2,0.07],
+      backgroundColor:['#6366f1','#ef4444','#3b82f6','#f59e0b','#8b5cf6','#6b7280'],
+      borderWidth:0
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12,font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>ctx.label+': $'+ctx.parsed.toFixed(1)+'M COP'}}}
+  }
+});
+
+// ═══ CAJA — Flujo Semanal ═══
+new Chart(document.getElementById('chartFlujoSemanal'),{
+  type:'line',
+  data:{
+    labels:['Hoy','Sem 1','Sem 2 (Q1)','Sem 3','Sem 4 (Q2)'],
+    datasets:[
+      {label:'Saldo Proyectado',data:[45.7,38.2,26.3,65,8.9],borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.1)',fill:true,tension:.3,borderWidth:2},
+      {label:'Mínimo Seguro ($20M)',data:[20,20,20,20,20],borderColor:'#ef4444',borderDash:[5,5],borderWidth:1,pointRadius:0}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+    scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}}}
+  }
+});
+
+// ═══ P&G — Margen por Unidad ═══
+new Chart(document.getElementById('chartMargenUnidad'),{
+  type:'bar',
+  data:{
+    labels:['Skool','Dropi','Tienda Gua','Tienda Col','Mentoría','Otros'],
+    datasets:[
+      {label:'Ingreso (M)',data:[261,30.5,6.3,2.5,4.1,1.8],backgroundColor:'rgba(16,185,129,.6)',borderRadius:4},
+      {label:'Costo Directo (M)',data:[77.6,0,2.3,1.6,0,0],backgroundColor:'rgba(239,68,68,.4)',borderRadius:4}
+    ]
+  },
+  options:{
+    indexAxis:'y',responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+    scales:{x:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}}}
+  }
+});
+
+// ═══ P&G — Composición Ingresos ═══
+new Chart(document.getElementById('chartIngresosComp'),{
+  type:'doughnut',
+  data:{
+    labels:['Skool (Hydrop Club)','Dropi Comisiones','Tiendas','Mentoría','Otros'],
+    datasets:[{data:[261,30.5,8.8,4.1,1.8],backgroundColor:['#6366f1','#10b981','#3b82f6','#f59e0b','#6b7280'],borderWidth:0}]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12}}}}
+});
+
+// ═══ MRR — Evolución ═══
+new Chart(document.getElementById('chartMRR'),{
+  type:'line',
+  data:{
+    labels:['Dic 25','Ene 26','Feb 26','Mar 26','Abr 26','May 26','Jun 26'],
+    datasets:[
+      {label:'MRR Real',data:[3200,20600,22300,28213,null,null,null],borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.1)',fill:true,tension:.3,borderWidth:2,pointBackgroundColor:'#6366f1'},
+      {label:'Proyección Actual',data:[null,null,null,28213,34113,40013,45913],borderColor:'#6366f1',borderDash:[5,5],borderWidth:1.5,pointRadius:2,tension:.3},
+      {label:'Proyección con Upsell',data:[null,null,null,28213,42213,56213,70213],borderColor:'#10b981',borderDash:[5,5],borderWidth:1.5,pointRadius:2,tension:.3}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toLocaleString()}}},
+    scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#1f2937'}}}
+  }
+});
+
+// ═══ ROAS — Pauta mensual ═══
+new Chart(document.getElementById('chartPauta'),{
+  type:'bar',
+  data:{
+    labels:meses,
+    datasets:[
+      {label:'Pauta Skool',data:[77.6,0,0,0,0,0,0,0,0,0,0,0],backgroundColor:'rgba(99,102,241,.6)',borderRadius:4},
+      {label:'Pauta Tiendas',data:[3.8,0,0,0,0,0,0,0,0,0,0,0],backgroundColor:'rgba(59,130,246,.6)',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,stacked:false,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+    scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}}}
+  }
+});
+
+// ═══ DEUDA — Carga mensual ═══
+new Chart(document.getElementById('chartDeuda'),{
+  type:'bar',
+  data:{
+    labels:meses,
+    datasets:[
+      {label:'TC + Créditos Familiares',data:[8.5,14.2,21.2,19.7,19.3,18.9,18.5,18.1,0,0,0,0],backgroundColor:'rgba(239,68,68,.5)',borderRadius:4},
+      {label:'Créditos Fijos (Hydrop+Andrés+Carro)',data:[3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7],backgroundColor:'rgba(245,158,11,.5)',borderRadius:4},
+      {label:'Mamá Isa',data:[0,5.3,5.2,5.2,5.1,5,5,4.9,4.8,4.8,4.8,4.6],backgroundColor:'rgba(139,92,246,.5)',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toFixed(1)+'M'}}},
+    scales:{y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}},x:{stacked:true}}
+  }
+});
+
+// ═══ NÓMINA — vs Ingresos ═══
+new Chart(document.getElementById('chartNomina'),{
+  type:'bar',
+  data:{
+    labels:meses,
+    datasets:[
+      {label:'Ingresos',data:[19.5,87,97,97,97,97,97,97,97,97,97,97],backgroundColor:'rgba(16,185,129,.5)',borderRadius:4},
+      {label:'Nómina',data:[50.8,51.3,52,49.3,54.3,54.3,54.3,54.3,54.3,54.3,54.3,54.3],backgroundColor:'rgba(239,68,68,.4)',borderRadius:4},
+      {label:'Ratio Ingreso/Nómina',data:[0.38,1.70,1.87,1.97,1.79,1.79,1.79,1.79,1.79,1.79,1.79,1.79],type:'line',borderColor:'#f59e0b',backgroundColor:'transparent',tension:.3,borderWidth:2,yAxisID:'y2'}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+    scales:{
+      y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'#1f2937'}},
+      y2:{position:'right',ticks:{callback:v=>v+'x'},grid:{display:false},min:0,max:3}
+    }
+  }
+});
+
+// ═══ PROYECCIÓN — Escenarios ═══
+new Chart(document.getElementById('chartProyeccion'),{
+  type:'line',
+  data:{
+    labels:['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    datasets:[
+      {label:'Actual (+$5.9K/mes)',data:[28213,34113,40013,45913,51813,57713,63613,69513,75413,81313],borderColor:'#ef4444',borderWidth:2,tension:.3,pointRadius:2},
+      {label:'Mejor retención (+$8.4K)',data:[28213,36613,45013,53413,61813,70213,78613,87013,95413,103813],borderColor:'#f59e0b',borderWidth:2,tension:.3,pointRadius:2},
+      {label:'Retención + Upsell (+$14K)',data:[28213,42213,56213,70213,84213,98213,112213,126213,140213,154213],borderColor:'#10b981',borderWidth:2,tension:.3,pointRadius:2},
+      {label:'Full plan (+$20K)',data:[28213,48213,68213,88213,108213,128213,148213,168213,188213,208213],borderColor:'#6366f1',borderWidth:2,tension:.3,pointRadius:2},
+      {label:'Meta $100K',data:[100000,100000,100000,100000,100000,100000,100000,100000,100000,100000],borderColor:'#fff',borderDash:[8,4],borderWidth:1,pointRadius:0}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12,font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': $'+ctx.parsed.y.toLocaleString()}}},
+    scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#1f2937'}}}
+  }
+});
+</script>
+
+</body>
+</html>

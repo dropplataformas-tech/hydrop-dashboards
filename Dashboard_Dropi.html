@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dropi Colombia | Dic 2024 - Mar 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:#0f1117;color:#d0d0d0;font-size:13px}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+h1{font-size:22px;color:#eee;margin:16px 0 4px}
+.sub{color:#777;font-size:12px;margin-bottom:16px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid #2a2a2a;padding-bottom:8px}
+.tabs button{background:none;border:1px solid #2a2a2a;color:#888;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;transition:all .15s}
+.tabs button:hover,.tabs button.on{background:#1a2030;color:#eee;border-color:#3a5070}
+.sec{display:none}.sec.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:#161b22;border:1px solid #252a32;border-radius:10px;padding:16px}
+.kpi .lb{font-size:10px;color:#667;text-transform:uppercase;letter-spacing:.5px}
+.kpi .vl{font-size:24px;font-weight:700;color:#eee;margin:4px 0}
+.kpi .dt{font-size:11px}.kpi .dt.up{color:#4a8}.kpi .dt.dn{color:#b55}.kpi .dt.nt{color:#a85}
+.card{background:#161b22;border:1px solid #252a32;border-radius:10px;padding:18px;margin-bottom:16px}
+.card h3{font-size:14px;color:#ddd;margin-bottom:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:900px){.row2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:7px 8px;border-bottom:1px solid #2a2a2a;color:#667;font-size:10px;text-transform:uppercase;font-weight:600}
+td{padding:7px 8px;border-bottom:1px solid #1c1c22}
+tr:hover td{background:#1a1e28}
+.r{text-align:right}.mn{font-family:'SF Mono',monospace;font-size:12px}
+.bg{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+.bg-g{background:#0a2a1a;color:#4a8}.bg-y{background:#2a1a00;color:#a85}.bg-r{background:#2a0a0a;color:#b55}
+canvas{max-height:300px}
+.foot{text-align:center;padding:30px;color:#444;font-size:11px}
+</style>
+</head><body>
+<div class="wrap">
+<h1>Dropi Colombia</h1>
+<p class="sub">Dic 2024 - Mar 2026 | 16 meses | 369,566 ordenes</p>
+<div class="tabs" id="tabs">
+<button class="on" data-s="s1">Overview</button>
+<button data-s="s2">Ingreso Hydrop</button>
+<button data-s="s3">Dropshippers</button>
+<button data-s="s4">Proveedores</button>
+<button data-s="s5">Productos</button>
+<button data-s="s6">Logistica</button>
+<button data-s="s7">Geografia</button>
+<button data-s="s8">Retencion</button>
+<button data-s="s9">Diagnostico</button>
+</div>
+
+<div id="s1" class="sec on">
+<div class="kpis" id="kpis"></div>
+<div class="row2"><div class="card"><h3>Ordenes</h3><canvas id="c1"></canvas></div><div class="card"><h3>% Devolucion</h3><canvas id="c2"></canvas></div></div>
+<div class="row2"><div class="card"><h3>DS Activos</h3><canvas id="c3"></canvas></div><div class="card"><h3>Ganancia DS</h3><canvas id="c4"></canvas></div></div>
+<div class="card"><h3>Tabla</h3><div style="overflow-x:auto" id="t1"></div></div>
+</div>
+
+<div id="s2" class="sec">
+<div class="kpis" id="kpis2"></div>
+<div class="row2"><div class="card"><h3>Ingreso por Mes</h3><canvas id="c5"></canvas></div><div class="card"><h3>Exitosas vs Devol</h3><canvas id="c6"></canvas></div></div>
+<div class="card"><h3>Efectividad %</h3><canvas id="c7"></canvas></div>
+<div class="card"><div style="overflow-x:auto" id="t2"></div></div>
+</div>
+
+<div id="s3" class="sec">
+<div class="card"><h3>Top 30 Ganancia</h3><canvas id="c8" style="max-height:480px"></canvas></div>
+<div class="card"><div style="overflow-x:auto" id="t3"></div></div>
+</div>
+
+<div id="s4" class="sec">
+<div class="row2"><div class="card"><h3>Volumen vs Dev</h3><canvas id="c9"></canvas></div><div class="card"><h3>Top 15</h3><canvas id="c10"></canvas></div></div>
+<div class="card"><div style="overflow-x:auto" id="t4"></div></div>
+</div>
+
+<div id="s5" class="sec">
+<div class="card"><h3>Volumen vs Dev</h3><canvas id="c11"></canvas></div>
+<div class="card"><div style="overflow-x:auto" id="t5"></div></div>
+</div>
+
+<div id="s6" class="sec">
+<div class="row2"><div class="card"><h3>Market Share</h3><canvas id="c12"></canvas></div><div class="card"><h3>% Dev</h3><canvas id="c13"></canvas></div></div>
+<div class="card"><div style="overflow-x:auto" id="t6"></div></div>
+</div>
+
+<div id="s7" class="sec">
+<div class="card"><h3>Ordenes vs Dev</h3><canvas id="c14" style="max-height:500px"></canvas></div>
+<div class="card"><div style="overflow-x:auto" id="t7"></div></div>
+</div>
+
+<div id="s8" class="sec">
+<div class="kpis" id="kpis3"></div>
+<div class="row2"><div class="card"><h3>Flujo DS</h3><canvas id="c15"></canvas></div><div class="card"><h3>Retencion MoM</h3><canvas id="c16"></canvas></div></div>
+<div class="card"><h3>Meses Activos</h3><canvas id="c17"></canvas></div>
+</div>
+
+<div id="s9" class="sec">
+<div class="kpis" id="kpis4"></div>
+<div class="card"><h3>Pareto</h3><canvas id="c18"></canvas></div>
+<div class="card" id="findings"></div>
+</div>
+
+<div class="foot">Hydrop | Dic 2024 - Mar 2026 | 369,566 ordenes | Generado 2026-04-11</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const D={"monthly": [{"mes": "Dic-2024", "ordenes": 33956, "entregado": 20705, "devolucion": 6955, "cancelado": 4949, "pEnt": 74.9, "pDev": 25.1, "pCanc": 14.6, "ds": 702, "proveedores": 855, "venta": 3083805908, "ganancia": 771934977}, {"mes": "Ene-2025", "ordenes": 39804, "entregado": 24639, "devolucion": 8024, "cancelado": 6241, "pEnt": 75.4, "pDev": 24.6, "pCanc": 15.7, "ds": 654, "proveedores": 757, "venta": null, "ganancia": null}, {"mes": "Feb-2025", "ordenes": 32497, "entregado": 21247, "devolucion": 5268, "cancelado": 4575, "pEnt": 80.1, "pDev": 19.9, "pCanc": 14.1, "ds": 626, "proveedores": 698, "venta": null, "ganancia": null}, {"mes": "Mar-2025", "ordenes": 32968, "entregado": 22090, "devolucion": 6976, "cancelado": 3346, "pEnt": 76.0, "pDev": 24.0, "pCanc": 10.1, "ds": 635, "proveedores": 712, "venta": 2653893817, "ganancia": 792075434}, {"mes": "Abr-2025", "ordenes": 31444, "entregado": 20192, "devolucion": 6358, "cancelado": 3392, "pEnt": 76.1, "pDev": 23.9, "pCanc": 10.8, "ds": 612, "proveedores": 670, "venta": 2434850402, "ganancia": 728652936}, {"mes": "May-2025", "ordenes": 24381, "entregado": 15732, "devolucion": 3393, "cancelado": 2370, "pEnt": 82.3, "pDev": 17.7, "pCanc": 9.7, "ds": 563, "proveedores": 672, "venta": 1968801550, "ganancia": 574040523}, {"mes": "Jun-2025", "ordenes": 22081, "entregado": 15000, "devolucion": 3772, "cancelado": 2103, "pEnt": 79.9, "pDev": 20.1, "pCanc": 9.5, "ds": 548, "proveedores": 645, "venta": 1790893992, "ganancia": 537225842}, {"mes": "Jul-2025", "ordenes": 25116, "entregado": 17215, "devolucion": 3966, "cancelado": 2192, "pEnt": 81.3, "pDev": 18.7, "pCanc": 8.7, "ds": 540, "proveedores": 634, "venta": 2038487844, "ganancia": 596680476}, {"mes": "Ago-2025", "ordenes": 11884, "entregado": 8387, "devolucion": 2278, "cancelado": 959, "pEnt": 78.6, "pDev": 21.4, "pCanc": 8.1, "ds": 429, "proveedores": 516, "venta": 1139054793, "ganancia": 309288117}, {"mes": "Sep-2025", "ordenes": 18710, "entregado": 13357, "devolucion": 3158, "cancelado": 1364, "pEnt": 80.9, "pDev": 19.1, "pCanc": 7.3, "ds": 431, "proveedores": 518, "venta": 2034944020, "ganancia": 567592334}, {"mes": "Oct-2025", "ordenes": 17987, "entregado": 12921, "devolucion": 3207, "cancelado": 1445, "pEnt": 80.1, "pDev": 19.9, "pCanc": 8.0, "ds": 418, "proveedores": 521, "venta": 1815145133, "ganancia": 495520669}, {"mes": "Nov-2025", "ordenes": 13778, "entregado": 9945, "devolucion": 2368, "cancelado": 1236, "pEnt": 80.8, "pDev": 19.2, "pCanc": 9.0, "ds": 409, "proveedores": 498, "venta": 1498308402, "ganancia": 434157679}, {"mes": "Dic-2025", "ordenes": 17688, "entregado": 11869, "devolucion": 3103, "cancelado": 2272, "pEnt": 79.3, "pDev": 20.7, "pCanc": 12.8, "ds": 416, "proveedores": 561, "venta": 1831764880, "ganancia": 488883408}, {"mes": "Ene-2026", "ordenes": 16161, "entregado": 11084, "devolucion": 2862, "cancelado": 1875, "pEnt": 79.5, "pDev": 20.5, "pCanc": 11.6, "ds": 369, "proveedores": 455, "venta": 1565664141, "ganancia": 445130230}, {"mes": "Feb-2026", "ordenes": 15436, "entregado": 10779, "devolucion": 2595, "cancelado": 1747, "pEnt": 80.6, "pDev": 19.4, "pCanc": 11.3, "ds": 392, "proveedores": 484, "venta": 1522209650, "ganancia": 454721536}, {"mes": "Mar-2026", "ordenes": 15675, "entregado": 10749, "devolucion": 2048, "cancelado": 1648, "pEnt": 84.0, "pDev": 16.0, "pCanc": 10.5, "ds": 403, "proveedores": 520, "venta": 1567479751, "ganancia": 444681525}], "dropshippers": [{"nombre": "Borges Maicon (162213)", "meses": 9, "ordenes": 20715, "entregado": 12357, "pDev": 21.8, "efectividad": 59.7, "ganancia": 748808294}, {"nombre": "Jhon Ramírez (98656)", "meses": 16, "ordenes": 6739, "entregado": 5730, "pDev": 8.5, "efectividad": 85.0, "ganancia": 541681532}, {"nombre": "Yuliana Gutierrez (21919)", "meses": 9, "ordenes": 13268, "entregado": 8295, "pDev": 33.9, "efectividad": 62.5, "ganancia": 337106761}, {"nombre": "andres joya (129480)", "meses": 16, "ordenes": 14196, "entregado": 7729, "pDev": 23.2, "efectividad": 54.4, "ganancia": 220125368}, {"nombre": "Pedro Murillo (60029)", "meses": 16, "ordenes": 9525, "entregado": 7428, "pDev": 11.1, "efectividad": 78.0, "ganancia": 179382362}, {"nombre": "Diego Molano (12354)", "meses": 11, "ordenes": 5315, "entregado": 2873, "pDev": 19.7, "efectividad": 54.1, "ganancia": 174095877}, {"nombre": "MARIA DORADO (39262)", "meses": 4, "ordenes": 11218, "entregado": 6949, "pDev": 34.8, "efectividad": 61.9, "ganancia": 171161008}, {"nombre": "Leonardo Moreno (32910)", "meses": 9, "ordenes": 6992, "entregado": 4864, "pDev": 19.9, "efectividad": 69.6, "ganancia": 166751010}, {"nombre": "geovany andres bernal lagos (61643)", "meses": 16, "ordenes": 7071, "entregado": 3930, "pDev": 30.6, "efectividad": 55.6, "ganancia": 164230962}, {"nombre": "Sara Vargas (95171)", "meses": 16, "ordenes": 7292, "entregado": 4791, "pDev": 14.5, "efectividad": 65.7, "ganancia": 134784034}, {"nombre": "Tienda Cool trendys (63897)", "meses": 16, "ordenes": 4709, "entregado": 3265, "pDev": 16.8, "efectividad": 69.3, "ganancia": 121611494}, {"nombre": "Dilan Moncada (690473)", "meses": 4, "ordenes": 4825, "entregado": 3269, "pDev": 23.4, "efectividad": 67.8, "ganancia": 118259209}, {"nombre": "Silvia Plata (30016)", "meses": 16, "ordenes": 4069, "entregado": 3323, "pDev": 13.1, "efectividad": 81.7, "ganancia": 114717609}, {"nombre": "Zulay Garcia (382914)", "meses": 6, "ordenes": 3483, "entregado": 2178, "pDev": 14.4, "efectividad": 62.5, "ganancia": 109633270}, {"nombre": "Juan Jaramillo (109326)", "meses": 16, "ordenes": 3305, "entregado": 2037, "pDev": 31.8, "efectividad": 61.6, "ganancia": 109332164}, {"nombre": "ColoMarket Tienda (236272)", "meses": 10, "ordenes": 4126, "entregado": 2965, "pDev": 21.5, "efectividad": 71.9, "ganancia": 101018163}, {"nombre": "EDUARDO MEDINA (383174)", "meses": 16, "ordenes": 5935, "entregado": 4305, "pDev": 22.8, "efectividad": 72.5, "ganancia": 98667635}, {"nombre": "Cesar Acevedo (21960)", "meses": 11, "ordenes": 7992, "entregado": 5399, "pDev": 12.4, "efectividad": 67.6, "ganancia": 92984444}, {"nombre": "Cristian Arellano (152644)", "meses": 16, "ordenes": 3861, "entregado": 2407, "pDev": 32.2, "efectividad": 62.3, "ganancia": 88713828}, {"nombre": "JHOAN VEGA (23667)", "meses": 13, "ordenes": 2311, "entregado": 1724, "pDev": 17.2, "efectividad": 74.6, "ganancia": 81372977}, {"nombre": "Maria Hoyos (382483)", "meses": 4, "ordenes": 4085, "entregado": 2332, "pDev": 19.9, "efectividad": 57.1, "ganancia": 76739358}, {"nombre": "Toro palma Enoc lancidey (169913)", "meses": 10, "ordenes": 5730, "entregado": 4207, "pDev": 21.1, "efectividad": 73.4, "ganancia": 75124390}, {"nombre": "sebastian castro ordoñez (170658)", "meses": 16, "ordenes": 5432, "entregado": 3959, "pDev": 18.4, "efectividad": 72.9, "ganancia": 74675949}, {"nombre": "ALEJANDRA JARAMILLO (216648)", "meses": 8, "ordenes": 2311, "entregado": 1216, "pDev": 27.6, "efectividad": 52.6, "ganancia": 71694650}, {"nombre": "sara perez (88204)", "meses": 12, "ordenes": 2856, "entregado": 2242, "pDev": 17.6, "efectividad": 78.5, "ganancia": 68313902}, {"nombre": "Mateo Plata (241869)", "meses": 7, "ordenes": 9466, "entregado": 4429, "pDev": 21.6, "efectividad": 46.8, "ganancia": 67276339}, {"nombre": "Mateo Plata (15567)", "meses": 8, "ordenes": 3683, "entregado": 1878, "pDev": 31.6, "efectividad": 51.0, "ganancia": 61236221}, {"nombre": "Jorge Paniño (133727)", "meses": 11, "ordenes": 1693, "entregado": 1273, "pDev": 17.6, "efectividad": 75.2, "ganancia": 59264727}, {"nombre": "Ciro Cetre (95546)", "meses": 16, "ordenes": 2521, "entregado": 1756, "pDev": 20.8, "efectividad": 69.7, "ganancia": 57789422}, {"nombre": "Yuliana Villamizar (110407)", "meses": 16, "ordenes": 2404, "entregado": 1899, "pDev": 16.5, "efectividad": 79.0, "ganancia": 51517328}], "proveedores": [{"nombre": "GOLDBOX COL (205895)", "meses": 16, "ordenes": 33633, "pDev": 24.8}, {"nombre": "Mateo Plata (241869)", "meses": 7, "ordenes": 9466, "pDev": 21.6}, {"nombre": "TIENDA OSHOP OSHOP (13704)", "meses": 16, "ordenes": 9373, "pDev": 16.3}, {"nombre": "SETATRONIX TIENDA (38930)", "meses": 16, "ordenes": 7433, "pDev": 15.8}, {"nombre": "NAYIVER Hincapie (144205)", "meses": 16, "ordenes": 6872, "pDev": 18.9}, {"nombre": "Jhon Ramírez (98656)", "meses": 16, "ordenes": 6741, "pDev": 8.5}, {"nombre": "Productos Rosa Nova (377414)", "meses": 11, "ordenes": 6574, "pDev": 12.2}, {"nombre": "el melao online mealo (22343)", "meses": 8, "ordenes": 6322, "pDev": 16.0}, {"nombre": "Diego Kalach (13352)", "meses": 16, "ordenes": 6148, "pDev": 18.0}, {"nombre": "Miguel Mendoza (34467)", "meses": 14, "ordenes": 6116, "pDev": 32.0}, {"nombre": "diego GUTIERREZ (48101)", "meses": 11, "ordenes": 5078, "pDev": 33.1}, {"nombre": "Sandra Leon (151037)", "meses": 16, "ordenes": 5009, "pDev": 29.4}, {"nombre": "Tecnología Mundial (6338)", "meses": 16, "ordenes": 4799, "pDev": 20.3}, {"nombre": "Jhon Peña (120213)", "meses": 15, "ordenes": 4724, "pDev": 29.9}, {"nombre": "SANTIAGO MUÑOZ (96933)", "meses": 13, "ordenes": 4704, "pDev": 36.8}, {"nombre": "ARTES Y DECORACION (2521)", "meses": 15, "ordenes": 3898, "pDev": 23.2}, {"nombre": "MANUEL PEREZ (64834)", "meses": 2, "ordenes": 3821, "pDev": 36.1}, {"nombre": "SAZU ACCESORIOS (91012)", "meses": 16, "ordenes": 3708, "pDev": 21.5}, {"nombre": "Mateo Plata (104331)", "meses": 9, "ordenes": 3639, "pDev": 31.5}, {"nombre": "Quality Tienda (6606)", "meses": 16, "ordenes": 3438, "pDev": 16.6}, {"nombre": "NICOL RODRIGUEZ (32016)", "meses": 16, "ordenes": 2858, "pDev": 23.5}, {"nombre": "JOSE BARON (285814)", "meses": 15, "ordenes": 2848, "pDev": 12.7}, {"nombre": "Andrey Rojas (64834)", "meses": 14, "ordenes": 2681, "pDev": 24.9}, {"nombre": "Johan Guevara (103581)", "meses": 8, "ordenes": 2672, "pDev": 12.1}, {"nombre": "COMPRAS DE VERDAD COMPRAS DE VERDAD (359", "meses": 16, "ordenes": 2655, "pDev": 16.4}, {"nombre": "DIANA RAMOS (206654)", "meses": 15, "ordenes": 2568, "pDev": 21.8}, {"nombre": "BODEGA P&G DE IMPORTACIONES P&G (299971)", "meses": 16, "ordenes": 2498, "pDev": 13.8}, {"nombre": "Camilo Quintero (477480)", "meses": 4, "ordenes": 2446, "pDev": 17.4}, {"nombre": "Elcontainer Shop (136436)", "meses": 16, "ordenes": 2408, "pDev": 18.1}, {"nombre": "SEGUNDO ROCHA (45331)", "meses": 16, "ordenes": 2388, "pDev": 17.4}], "productos": [{"nombre": "Sellador impermeabilizante invisible", "meses": 8, "ordenes": 9099, "pDev": 19.6}, {"nombre": "LEGGINS CON FAJA EN NEOPRENO", "meses": 8, "ordenes": 5638, "pDev": 12.1}, {"nombre": "Oxímetro de pulso", "meses": 7, "ordenes": 5008, "pDev": 33.3}, {"nombre": "Oximetro", "meses": 2, "ordenes": 4767, "pDev": 31.7}, {"nombre": "Cremas aclarantes (2)", "meses": 8, "ordenes": 4534, "pDev": 26.8}, {"nombre": "Crema Colageno EELHOE 30gr", "meses": 8, "ordenes": 3510, "pDev": 24.8}, {"nombre": "Tenis NIKE air running", "meses": 8, "ordenes": 3302, "pDev": 21.1}, {"nombre": "Iron seal reparacion", "meses": 3, "ordenes": 3155, "pDev": 21.2}, {"nombre": "Hidrolavadora Recargable 48V 2 Baterías", "meses": 8, "ordenes": 3036, "pDev": 15.4}, {"nombre": "GAFA LECTURA MULTIFOCALES", "meses": 3, "ordenes": 2822, "pDev": 37.9}, {"nombre": "Tenis HUGO BOSS stride pro", "meses": 8, "ordenes": 2611, "pDev": 28.0}, {"nombre": "Beevana crema dolores y articulaciones 2", "meses": 8, "ordenes": 2356, "pDev": 37.6}, {"nombre": "Taza Mug Mezcladora", "meses": 8, "ordenes": 2340, "pDev": 11.5}, {"nombre": "Tenis REEBOK classic caballero", "meses": 4, "ordenes": 2148, "pDev": 24.0}, {"nombre": "COMBO 2 GAFAS DE LECTURA", "meses": 4, "ordenes": 2075, "pDev": 30.6}, {"nombre": "Alta Frecuencia Portátil Facial", "meses": 8, "ordenes": 1990, "pDev": 12.1}, {"nombre": "Tenis ADIDAS runner 2k", "meses": 8, "ordenes": 1811, "pDev": 24.3}, {"nombre": "Chaleco Corrector de postura UNISEX", "meses": 7, "ordenes": 1803, "pDev": 13.5}, {"nombre": "GAFAS BLUE CLUB MASTER", "meses": 3, "ordenes": 1727, "pDev": 38.4}, {"nombre": "Golden Lure perfume feromonas", "meses": 5, "ordenes": 1453, "pDev": 41.5}, {"nombre": "HER LOSS top 60ML", "meses": 6, "ordenes": 1428, "pDev": 37.0}, {"nombre": "Beevana crema dolores y articulaciones 3", "meses": 8, "ordenes": 1416, "pDev": 18.4}, {"nombre": "TRIO CARRIEL CABALLERO REF GALAHAD", "meses": 7, "ordenes": 1381, "pDev": 25.4}, {"nombre": "Tenis REEBOK 3.0 originals", "meses": 7, "ordenes": 1355, "pDev": 22.7}, {"nombre": "Kit de bandas de resistencia tubulares", "meses": 6, "ordenes": 1351, "pDev": 16.9}, {"nombre": "CEPILLO CON MANGO VAPOR MASCOTAS", "meses": 8, "ordenes": 1339, "pDev": 17.4}, {"nombre": "Parlante JBL Boombox 3", "meses": 8, "ordenes": 1328, "pDev": 31.4}, {"nombre": "DICTAMNI HEMORRDS SPRAY", "meses": 8, "ordenes": 1131, "pDev": 27.6}, {"nombre": "Tenis REEBOK clasicos", "meses": 8, "ordenes": 1120, "pDev": 32.2}, {"nombre": "Canguro bolso antirrobo para hombre", "meses": 8, "ordenes": 1031, "pDev": 18.1}], "transportadoras": [{"nombre": "INTERRAPIDISIMO", "ordenes": 192107, "pShare": 52.0, "pDev": 22.2}, {"nombre": "ENVIA", "ordenes": 130601, "pShare": 35.3, "pDev": 20.9}, {"nombre": "COORDINADORA", "ordenes": 25222, "pShare": 6.8, "pDev": 18.5}, {"nombre": "VELOCES", "ordenes": 7851, "pShare": 2.1, "pDev": 17.7}, {"nombre": "TCC", "ordenes": 4142, "pShare": 1.1, "pDev": 13.6}, {"nombre": "FUTURA", "ordenes": 4076, "pShare": 1.1, "pDev": 16.6}, {"nombre": "JAMV-DRIVE", "ordenes": 2290, "pShare": 0.6, "pDev": 15.4}, {"nombre": "99MINUTOS", "ordenes": 1769, "pShare": 0.5, "pDev": 22.6}, {"nombre": "DOMINA", "ordenes": 1285, "pShare": 0.3, "pDev": 23.4}, {"nombre": "WIILOG", "ordenes": 154, "pShare": 0.0, "pDev": 7.4}, {"nombre": "DEROCHA-EXPRESS", "ordenes": 56, "pShare": 0.0, "pDev": 17.4}], "departamentos": [{"nombre": "CUNDINAMARCA", "ordenes": 67755, "pShare": 18.3, "pDev": 22.3}, {"nombre": "ANTIOQUIA", "ordenes": 61356, "pShare": 16.6, "pDev": 21.0}, {"nombre": "VALLE", "ordenes": 35829, "pShare": 9.7, "pDev": 21.3}, {"nombre": "SANTANDER", "ordenes": 17430, "pShare": 4.7, "pDev": 18.1}, {"nombre": "BOLIVAR", "ordenes": 16531, "pShare": 4.5, "pDev": 26.7}, {"nombre": "ATLANTICO", "ordenes": 15265, "pShare": 4.1, "pDev": 24.2}, {"nombre": "NARIÑO", "ordenes": 12370, "pShare": 3.3, "pDev": 23.4}, {"nombre": "TOLIMA", "ordenes": 11102, "pShare": 3.0, "pDev": 18.2}, {"nombre": "HUILA", "ordenes": 10616, "pShare": 2.9, "pDev": 19.8}, {"nombre": "CAUCA", "ordenes": 10205, "pShare": 2.8, "pDev": 20.0}, {"nombre": "META", "ordenes": 10193, "pShare": 2.8, "pDev": 18.3}, {"nombre": "CORDOBA", "ordenes": 9523, "pShare": 2.6, "pDev": 23.3}, {"nombre": "BOYACA", "ordenes": 9439, "pShare": 2.6, "pDev": 15.0}, {"nombre": "NORTE DE SANTANDER", "ordenes": 9116, "pShare": 2.5, "pDev": 21.1}, {"nombre": "MAGDALENA", "ordenes": 8948, "pShare": 2.4, "pDev": 26.0}, {"nombre": "CESAR", "ordenes": 8536, "pShare": 2.3, "pDev": 23.0}, {"nombre": "RISARALDA", "ordenes": 8099, "pShare": 2.2, "pDev": 16.2}, {"nombre": "CALDAS", "ordenes": 8010, "pShare": 2.2, "pDev": 16.5}, {"nombre": "LA GUAJIRA", "ordenes": 5570, "pShare": 1.5, "pDev": 26.1}, {"nombre": "SUCRE", "ordenes": 4982, "pShare": 1.3, "pDev": 22.1}, {"nombre": "QUINDIO", "ordenes": 4547, "pShare": 1.2, "pDev": 16.0}, {"nombre": "CASANARE", "ordenes": 4540, "pShare": 1.2, "pDev": 17.6}, {"nombre": "PUTUMAYO", "ordenes": 4440, "pShare": 1.2, "pDev": 20.9}, {"nombre": "CAQUETA", "ordenes": 4400, "pShare": 1.2, "pDev": 20.1}, {"nombre": "ARAUCA", "ordenes": 3266, "pShare": 0.9, "pDev": 19.0}, {"nombre": "CHOCO", "ordenes": 2955, "pShare": 0.8, "pDev": 25.8}, {"nombre": "VAUPES", "ordenes": 1451, "pShare": 0.4, "pDev": 4.7}, {"nombre": "GUAVIARE", "ordenes": 857, "pShare": 0.2, "pDev": 20.1}, {"nombre": "ARCHIPIELAGO DE SAN ANDRES", "ordenes": 665, "pShare": 0.2, "pDev": 25.4}, {"nombre": "AMAZONAS", "ordenes": 628, "pShare": 0.2, "pDev": 32.0}, {"nombre": "GUAINIA", "ordenes": 505, "pShare": 0.1, "pDev": 29.4}, {"nombre": "VICHADA", "ordenes": 437, "pShare": 0.1, "pDev": 24.2}], "retencion": [{"mes": "Dic-2024", "activos": 702, "nuevos": 0, "se_fueron": 0, "retencion": 100}, {"mes": "Ene-2025", "activos": 654, "nuevos": 294, "se_fueron": 342, "retencion": 51.3}, {"mes": "Feb-2025", "activos": 626, "nuevos": 189, "se_fueron": 261, "retencion": 60.1}, {"mes": "Mar-2025", "activos": 635, "nuevos": 188, "se_fueron": 275, "retencion": 56.1}, {"mes": "Abr-2025", "activos": 612, "nuevos": 151, "se_fueron": 266, "retencion": 58.1}, {"mes": "May-2025", "activos": 563, "nuevos": 122, "se_fueron": 261, "retencion": 57.4}, {"mes": "Jun-2025", "activos": 548, "nuevos": 87, "se_fueron": 205, "retencion": 63.6}, {"mes": "Jul-2025", "activos": 540, "nuevos": 87, "se_fueron": 204, "retencion": 62.8}, {"mes": "Ago-2025", "activos": 429, "nuevos": 68, "se_fueron": 254, "retencion": 53.0}, {"mes": "Sep-2025", "activos": 431, "nuevos": 60, "se_fueron": 185, "retencion": 56.9}, {"mes": "Oct-2025", "activos": 418, "nuevos": 57, "se_fueron": 183, "retencion": 57.5}, {"mes": "Nov-2025", "activos": 409, "nuevos": 55, "se_fueron": 178, "retencion": 57.4}, {"mes": "Dic-2025", "activos": 416, "nuevos": 42, "se_fueron": 159, "retencion": 61.1}, {"mes": "Ene-2026", "activos": 369, "nuevos": 42, "se_fueron": 191, "retencion": 54.1}, {"mes": "Feb-2026", "activos": 392, "nuevos": 63, "se_fueron": 138, "retencion": 62.6}, {"mes": "Mar-2026", "activos": 403, "nuevos": 69, "se_fueron": 151, "retencion": 61.5}], "lifecycle": [{"meses": 1, "ds": 878}, {"meses": 2, "ds": 434}, {"meses": 3, "ds": 237}, {"meses": 4, "ds": 149}, {"meses": 5, "ds": 110}, {"meses": 6, "ds": 85}, {"meses": 7, "ds": 74}, {"meses": 8, "ds": 53}, {"meses": 9, "ds": 51}, {"meses": 10, "ds": 41}, {"meses": 11, "ds": 33}, {"meses": 12, "ds": 24}, {"meses": 13, "ds": 25}, {"meses": 14, "ds": 26}, {"meses": 15, "ds": 13}, {"meses": 16, "ds": 43}], "concentracion": {"top5": 18.6, "top10": 29.2, "top20": 42.9, "top50": 63.7, "total_ds": 2276}, "ingreso": [{"mes": "Dic-2024", "exitosas": 20705, "ingreso": 20705000}, {"mes": "Ene-2025", "exitosas": 24642, "ingreso": 24642000}, {"mes": "Feb-2025", "exitosas": 21280, "ingreso": 21280000}, {"mes": "Mar-2025", "exitosas": 22091, "ingreso": 22091000}, {"mes": "Abr-2025", "exitosas": 20205, "ingreso": 20205000}, {"mes": "May-2025", "exitosas": 15811, "ingreso": 15811000}, {"mes": "Jun-2025", "exitosas": 15076, "ingreso": 15076000}, {"mes": "Jul-2025", "exitosas": 17324, "ingreso": 17324000}, {"mes": "Ago-2025", "exitosas": 8387, "ingreso": 8387000}, {"mes": "Sep-2025", "exitosas": 13395, "ingreso": 13395000}, {"mes": "Oct-2025", "exitosas": 12931, "ingreso": 12931000}, {"mes": "Nov-2025", "exitosas": 9945, "ingreso": 9945000}, {"mes": "Dic-2025", "exitosas": 11875, "ingreso": 11875000}, {"mes": "Ene-2026", "exitosas": 11084, "ingreso": 11084000}, {"mes": "Feb-2026", "exitosas": 10779, "ingreso": 10779000}, {"mes": "Mar-2026", "exitosas": 10776, "ingreso": 10776000}], "meta": {"total_ordenes": 369566, "total_meses": 16, "total_ds_unicos": 2276, "sobrevivencia": 19.1, "survived": 134, "ds_first": 702, "ds1_mes": 878, "ds1_pct": 38.6, "avg_retention": 58.2, "periodo": "Dic 2024 - Mar 2026", "total_exitosas": 246306, "total_ingreso": 246306000, "ingreso_promedio": 15394125}};
+const CL={b:'#4a7ab5',g:'#4a8a6a',r:'#b55a5a',y:'#a8854a',p:'#8a6ab5',c:'#4a9a8a',o:'#b57a4a'};
+Chart.defaults.color='#667';Chart.defaults.borderColor='#252a32';Chart.defaults.font.size=11;
+Chart.defaults.animation=false; // No animations = less RAM
+const charts={};
+function fmt(n){return n?n.toLocaleString('es-CO'):'N/D'}
+function fM(n){return n?'$'+(n/1e6).toFixed(0)+'M':'N/D'}
+function fB(n){return n?'$'+(n/1e9).toFixed(1)+'B':'N/D'}
+function sm(v){if(v>30)return'<span class="bg bg-r">'+v+'%</span>';if(v>20)return'<span class="bg bg-y">'+v+'%</span>';return'<span class="bg bg-g">'+v+'%</span>'}
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg)}
+
+// Tab switching — only render active tab charts
+document.getElementById('tabs').addEventListener('click',function(e){
+  if(e.target.tagName!=='BUTTON')return;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));
+  document.getElementById(e.target.dataset.s).classList.add('on');
+  e.target.classList.add('on');
+  render(e.target.dataset.s);
+});
+
+const m=D.monthly,ig=D.ingreso,ds=D.dropshippers,pv=D.proveedores,pr=D.productos,tr=D.transportadoras,dp=D.departamentos,rt=D.retencion,lc=D.lifecycle,cn=D.concentracion;
+
+function render(s){
+if(s==='s1'){
+  const tO=m.reduce((a,r)=>a+r.ordenes,0),tG=m.reduce((a,r)=>a+(r.ganancia||0),0),la=m[m.length-1];
+  document.getElementById('kpis').innerHTML=`<div class="kpi"><div class="lb">Ordenes</div><div class="vl">${fmt(tO)}</div></div><div class="kpi"><div class="lb">Ingreso Hydrop</div><div class="vl">${fM(246306000)}</div><div class="dt nt">$1K/entrega</div></div><div class="kpi"><div class="lb">DS Mar-26</div><div class="vl">${la.ds}</div><div class="dt up">+${la.ds-m[m.length-2].ds}</div></div><div class="kpi"><div class="lb">Dev Mar-26</div><div class="vl">${la.pDev}%</div><div class="dt up">Mejor historico</div></div>`;
+  mk('c1',{type:'bar',data:{labels:m.map(r=>r.mes),datasets:[{data:m.map(r=>r.ordenes),backgroundColor:CL.b+'88'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  mk('c2',{type:'line',data:{labels:m.map(r=>r.mes),datasets:[{label:'%Dev',data:m.map(r=>r.pDev),borderColor:CL.r,backgroundColor:CL.r+'33',fill:true,tension:.3},{label:'%Canc',data:m.map(r=>r.pCanc),borderColor:CL.y,borderDash:[5,5],tension:.3}]},options:{scales:{y:{max:30}}}});
+  mk('c3',{type:'line',data:{labels:m.map(r=>r.mes),datasets:[{data:m.map(r=>r.ds),borderColor:CL.c,backgroundColor:CL.c+'33',fill:true,tension:.3}]},options:{plugins:{legend:{display:false}}}});
+  mk('c4',{type:'bar',data:{labels:m.map(r=>r.mes),datasets:[{data:m.map(r=>r.ganancia),backgroundColor:m.map(r=>r.ganancia?CL.g+'88':'#222')}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fM(v)}}}}});
+  let h='<table><thead><tr><th>Mes</th><th class="r">Ord</th><th class="r">Ent</th><th class="r">Dev</th><th class="r">Can</th><th class="r">%Dev</th><th class="r">DS</th><th class="r">Venta</th><th class="r">Gan DS</th><th class="r">Ingreso</th></tr></thead><tbody>';
+  m.forEach((r,i)=>{h+=`<tr><td>${r.mes}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r mn">${fmt(r.entregado)}</td><td class="r mn">${fmt(r.devolucion)}</td><td class="r mn">${fmt(r.cancelado)}</td><td class="r">${sm(r.pDev)}</td><td class="r">${r.ds}</td><td class="r mn">${r.venta?fM(r.venta):'N/D'}</td><td class="r mn">${r.ganancia?fM(r.ganancia):'N/D'}</td><td class="r mn" style="color:#4a8">${fM(ig[i].ingreso)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t1').innerHTML=h;
+}
+else if(s==='s2'){
+  document.getElementById('kpis2').innerHTML=`<div class="kpi"><div class="lb">Total 16m</div><div class="vl">${fM(246306000)}</div></div><div class="kpi"><div class="lb">Prom/Mes</div><div class="vl">${fM(15394125)}</div></div><div class="kpi"><div class="lb">Exitosas</div><div class="vl">${fmt(246306)}</div></div><div class="kpi"><div class="lb">Mar-26</div><div class="vl">${fM(ig[ig.length-1].ingreso)}</div></div>`;
+  mk('c5',{type:'bar',data:{labels:ig.map(r=>r.mes),datasets:[{data:ig.map(r=>r.ingreso),backgroundColor:ig.map(r=>r.ingreso>=15e6?CL.g+'88':r.ingreso>=10e6?CL.y+'88':CL.r+'88')}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fM(v)}}}}});
+  mk('c6',{type:'bar',data:{labels:m.map(r=>r.mes),datasets:[{label:'Exitosas',data:ig.map(r=>r.exitosas),backgroundColor:CL.g+'88'},{label:'Devol',data:m.map(r=>r.devolucion),backgroundColor:CL.r+'88'},{label:'Cancel',data:m.map(r=>r.cancelado),backgroundColor:CL.y+'55'}]}});
+  const ef=m.map((r,i)=>((ig[i].exitosas/r.ordenes)*100).toFixed(1));
+  mk('c7',{type:'line',data:{labels:m.map(r=>r.mes),datasets:[{data:ef,borderColor:CL.g,backgroundColor:CL.g+'33',fill:true,tension:.3}]},options:{scales:{y:{min:55,max:80}}}});
+  let h='<table><thead><tr><th>Mes</th><th class="r">Total</th><th class="r">Exitosas</th><th class="r">%Efect</th><th class="r">Ingreso</th></tr></thead><tbody>';
+  m.forEach((r,i)=>{h+=`<tr><td>${r.mes}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r mn" style="color:#4a8">${fmt(ig[i].exitosas)}</td><td class="r">${ef[i]}%</td><td class="r mn" style="color:#4a8">${fM(ig[i].ingreso)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t2').innerHTML=h;
+}
+else if(s==='s3'){
+  mk('c8',{type:'bar',data:{labels:ds.map(r=>r.nombre),datasets:[{data:ds.map(r=>r.ganancia),backgroundColor:ds.map(r=>r.pDev>30?CL.r+'88':r.pDev>20?CL.y+'88':CL.g+'88')}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fM(v)}}}}});
+  let h='<table><thead><tr><th>#</th><th>DS</th><th class="r">Meses</th><th class="r">Ord</th><th class="r">%Dev</th><th class="r">Efect</th><th class="r">Ganancia</th></tr></thead><tbody>';
+  ds.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td>${r.nombre}</td><td class="r">${r.meses}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r">${sm(r.pDev)}</td><td class="r">${r.efectividad}%</td><td class="r mn">${fM(r.ganancia)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t3').innerHTML=h;
+}
+else if(s==='s4'){
+  mk('c9',{type:'scatter',data:{datasets:[{data:pv.map(r=>({x:r.ordenes,y:r.pDev})),backgroundColor:pv.map(r=>r.pDev>30?CL.r:r.pDev>20?CL.y:CL.g),pointRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:45}}}});
+  mk('c10',{type:'bar',data:{labels:pv.slice(0,15).map(r=>r.nombre),datasets:[{data:pv.slice(0,15).map(r=>r.ordenes),backgroundColor:pv.slice(0,15).map(r=>r.pDev>30?CL.r+'88':r.pDev>20?CL.y+'88':CL.g+'88')}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  let h='<table><thead><tr><th>#</th><th>Proveedor</th><th class="r">Meses</th><th class="r">Ord</th><th class="r">%Dev</th></tr></thead><tbody>';
+  pv.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td>${r.nombre}</td><td class="r">${r.meses}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r">${sm(r.pDev)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t4').innerHTML=h;
+}
+else if(s==='s5'){
+  mk('c11',{type:'scatter',data:{datasets:[{data:pr.map(r=>({x:r.ordenes,y:r.pDev})),backgroundColor:pr.map(r=>r.pDev>35?CL.r:r.pDev<12?CL.g:CL.y),pointRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>pr[c.dataIndex].nombre}}},scales:{y:{min:0,max:50}}}});
+  let h='<table><thead><tr><th>#</th><th>Producto</th><th class="r">Meses</th><th class="r">Ord</th><th class="r">%Dev</th></tr></thead><tbody>';
+  pr.forEach((r,i)=>{const t=r.pDev<12?'<span class="bg bg-g">ESTRELLA</span>':r.pDev>35?'<span class="bg bg-r">TOXICO</span>':'';h+=`<tr><td>${i+1}</td><td>${r.nombre} ${t}</td><td class="r">${r.meses}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r">${sm(r.pDev)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t5').innerHTML=h;
+}
+else if(s==='s6'){
+  mk('c12',{type:'doughnut',data:{labels:tr.map(r=>r.nombre),datasets:[{data:tr.map(r=>r.ordenes),backgroundColor:[CL.b,CL.g,CL.y,CL.p,CL.c,CL.o,CL.r,'#555','#444','#333']}]},options:{plugins:{legend:{position:'right'}}}});
+  mk('c13',{type:'bar',data:{labels:tr.map(r=>r.nombre),datasets:[{data:tr.map(r=>r.pDev),backgroundColor:tr.map(r=>r.pDev>25?CL.r+'88':r.pDev>20?CL.y+'88':CL.g+'88')}]},options:{plugins:{legend:{display:false}},scales:{y:{max:30}}}});
+  let h='<table><thead><tr><th>Transp</th><th class="r">Ord</th><th class="r">%Share</th><th class="r">%Dev</th></tr></thead><tbody>';
+  tr.forEach(r=>{h+=`<tr><td>${r.nombre}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r">${r.pShare}%</td><td class="r">${sm(r.pDev)}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t6').innerHTML=h;
+}
+else if(s==='s7'){
+  const zR=['LA GUAJIRA','BOLIVAR','ATLANTICO','MAGDALENA','CHOCO','CESAR','CORDOBA','SUCRE'],zV=['QUINDIO','RISARALDA','CALDAS','BOYACA','META','CASANARE'];
+  mk('c14',{type:'bar',data:{labels:dp.map(r=>r.nombre),datasets:[{label:'Ord',data:dp.map(r=>r.ordenes),backgroundColor:CL.b+'55',yAxisID:'y'},{label:'%Dev',data:dp.map(r=>r.pDev),type:'line',borderColor:CL.r,pointBackgroundColor:dp.map(r=>zR.includes(r.nombre)?CL.r:zV.includes(r.nombre)?CL.g:CL.y),pointRadius:4,yAxisID:'y1'}]},options:{scales:{y:{beginAtZero:true},y1:{max:35,position:'right',grid:{display:false}}}}});
+  let h='<table><thead><tr><th>Depto</th><th class="r">Ord</th><th class="r">%Share</th><th class="r">%Dev</th><th>Zona</th></tr></thead><tbody>';
+  dp.forEach(r=>{const z=zR.includes(r.nombre)?'<span class="bg bg-r">ROJA</span>':zV.includes(r.nombre)?'<span class="bg bg-g">VERDE</span>':'';h+=`<tr><td>${r.nombre}</td><td class="r mn">${fmt(r.ordenes)}</td><td class="r">${r.pShare}%</td><td class="r">${sm(r.pDev)}</td><td>${z}</td></tr>`});
+  h+='</tbody></table>';document.getElementById('t7').innerHTML=h;
+}
+else if(s==='s8'){
+  document.getElementById('kpis3').innerHTML=`<div class="kpi"><div class="lb">DS Unicos</div><div class="vl">${fmt(2276)}</div></div><div class="kpi"><div class="lb">Sobrevivencia</div><div class="vl">19.1%</div><div class="dt dn">134 de 702</div></div><div class="kpi"><div class="lb">Solo 1 Mes</div><div class="vl">38.6%</div></div><div class="kpi"><div class="lb">Ret MoM</div><div class="vl">58.2%</div></div>`;
+  mk('c15',{type:'bar',data:{labels:rt.map(r=>r.mes),datasets:[{label:'Activos',data:rt.map(r=>r.activos),backgroundColor:CL.b+'88'},{label:'Nuevos',data:rt.map(r=>r.nuevos),backgroundColor:CL.g+'88'},{label:'Salieron',data:rt.map(r=>-r.se_fueron),backgroundColor:CL.r+'88'}]}});
+  mk('c16',{type:'line',data:{labels:rt.map(r=>r.mes),datasets:[{data:rt.map(r=>r.retencion),borderColor:CL.c,backgroundColor:CL.c+'33',fill:true,tension:.3}]},options:{scales:{y:{min:40,max:100}}}});
+  mk('c17',{type:'bar',data:{labels:lc.map(r=>r.meses+'m'),datasets:[{data:lc.map(r=>r.ds),backgroundColor:lc.map(r=>r.meses<=2?CL.r+'88':r.meses<=5?CL.y+'88':CL.g+'88')}]},options:{plugins:{legend:{display:false}}}});
+}
+else if(s==='s9'){
+  document.getElementById('kpis4').innerHTML=`<div class="kpi"><div class="lb">Top 10 DS</div><div class="vl">${cn.top10}%</div><div class="dt dn">de ordenes</div></div><div class="kpi"><div class="lb">Top 50 DS</div><div class="vl">${cn.top50}%</div></div><div class="kpi"><div class="lb">Caida Ord</div><div class="vl">-60.6%</div><div class="dt dn">39,804→15,675</div></div><div class="kpi"><div class="lb">Caida DS</div><div class="vl">-42.6%</div><div class="dt dn">702→403</div></div>`;
+  mk('c18',{type:'bar',data:{labels:['Top 5','Top 10','Top 20','Top 50','Resto'],datasets:[{data:[cn.top5,cn.top10-cn.top5,cn.top20-cn.top10,cn.top50-cn.top20,100-cn.top50],backgroundColor:[CL.r+'88',CL.o+'88',CL.y+'88',CL.c+'88',CL.g+'88']}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'}}}}});
+  document.getElementById('findings').innerHTML=`<h3>Hallazgos</h3><div style="padding:8px;line-height:2;font-size:12px"><p><span class="bg bg-r">CRITICO</span> Fuga DS: 19.1% sobrevive. 38% se va en 1 mes.</p><p><span class="bg bg-r">CRITICO</span> Top 10 = ${cn.top10}% ordenes.</p><p><span class="bg bg-r">CRITICO</span> -60% ordenes en 16 meses.</p><p><span class="bg bg-y">ALERTA</span> Ene/Feb 2025 sin PRECIO/GANANCIA.</p><p><span class="bg bg-g">SENAL</span> Mar-2026 = 16.0% devolucion. Mejor historico.</p><p><span class="bg bg-g">SENAL</span> DS suben: 369→392→403. Primer crecimiento.</p><p><span class="bg bg-g">SENAL</span> Estabilizacion: 15-17K ord/mes ultimos 5 meses.</p></div>`;
+}
+}
+render('s1'); // Initial render
+</script></body></html>
